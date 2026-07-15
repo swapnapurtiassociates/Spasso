@@ -1,0 +1,29 @@
+{
+  "name": "construction-site-root",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "artifacts/construction-site",
+    "lib/api-client-react",
+    "lib/replit-auth-web"
+  ],
+  "scripts": {
+    "dev": "npm --prefix artifacts/construction-site run dev",
+    "build": "npm --prefix artifacts/construction-site run build",
+    "serve": "npm --prefix artifacts/construction-site run serve",
+    "typecheck": "npm --prefix artifacts/construction-site run typecheck"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jimp": "^1.6.1",
+    "mongoose": "^9.7.1",
+    "sharp": "^0.35.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.1",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1"
+  }
+}
