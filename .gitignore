@@ -28,3 +28,6 @@ Thumbs.db
 
 # misc
 coverage/
+
+# Large videos
+artifacts/construction-site/public/images/*.mp4
