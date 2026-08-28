@@ -12,20 +12,20 @@
 // before db.js, transporter.js, and any other module reads from it.
 import "./config/env.js";
 
-import express from "express";
-import cors from "cors";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
 import { createServer } from "http";
 import { connectDB } from "./config/db.js";
 import { initSocket } from "./sockets/index.js";
 import { verifyEmailConnection } from "./utils/email/transporter.js";
 
 import authRoutes from "./routes/auth.js";
-import userRoutes from "./routes/users.js";
-import projectRoutes from "./routes/projects.js";
+import enquiryRoutes from "./routes/enquiries.js";
 import messageRoutes from "./routes/messages.js";
 import notificationRoutes from "./routes/notifications.js";
-import enquiryRoutes from "./routes/enquiries.js";
+import projectRoutes from "./routes/projects.js";
+import userRoutes from "./routes/users.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -66,6 +66,8 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
+export { app, connectDB };
+
 async function start() {
   await connectDB();
   initSocket(httpServer, app);
@@ -76,4 +78,6 @@ async function start() {
   });
 }
 
-start();
+if (process.env.VERCEL !== "1") {
+  start();
+}

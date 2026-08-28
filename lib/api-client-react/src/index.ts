@@ -4,7 +4,9 @@ import { QueryKey, useMutation, useQuery } from "@tanstack/react-query";
  * Base URL of the Express API server. Mirrors the constant in
  * @workspace/replit-auth-web so this package has no hard dependency on it.
  */
-const API_BASE_URL = (import.meta as any)?.env?.VITE_API_URL || "http://localhost:5000";
+const API_BASE_URL =
+  (import.meta as any)?.env?.VITE_API_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "http://localhost:5000");
 
 async function parseJsonSafe(response: Response) {
   try {

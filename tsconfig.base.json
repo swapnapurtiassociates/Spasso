@@ -16,7 +16,6 @@
     "noEmit": true,
     "jsx": "preserve",
     "types": ["vite/client"],
-    "baseUrl": ".",
     "ignoreDeprecations": "6.0"
   }
 }

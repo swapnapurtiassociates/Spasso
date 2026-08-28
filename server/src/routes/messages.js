@@ -39,8 +39,10 @@ router.post("/", requireAuth, async (req, res) => {
   });
 
   const io = req.app.get("io");
-  io.to(`user:${receiver}`).emit("message:new", message);
-  io.to(`user:${req.user._id}`).emit("message:new", message);
+  if (io) {
+    io.to(`user:${receiver}`).emit("message:new", message);
+    io.to(`user:${req.user._id}`).emit("message:new", message);
+  }
 
   const notification = await Notification.create({
     recipient: receiver,
@@ -49,7 +51,7 @@ router.post("/", requireAuth, async (req, res) => {
     type: "info",
     link: "/dashboard/messages",
   });
-  io.to(`user:${receiver}`).emit("notification:new", notification);
+  if (io) io.to(`user:${receiver}`).emit("notification:new", notification);
 
   res.status(201).json({ message });
 });

@@ -59,7 +59,8 @@ export type UseAuthResult = {
  * but defaults to the standalone backend on port 5000 for local dev.
  */
 export const API_BASE_URL =
-  (import.meta as any)?.env?.VITE_API_URL || "http://localhost:5000";
+  (import.meta as any)?.env?.VITE_API_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "http://localhost:5000");
 
 async function parseJsonSafe(response: Response) {
   try {

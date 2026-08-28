@@ -74,7 +74,7 @@ router.post("/", requireAuth, requireRole("admin", "ceo"), async (req, res) => {
 
   // Real-time: notify everyone in the admin/ceo/engineer rooms
   const io = req.app.get("io");
-  io.to("role:admin").to("role:ceo").to("role:engineer").emit("project:created", project);
+  if (io) io.to("role:admin").to("role:ceo").to("role:engineer").emit("project:created", project);
 
   res.status(201).json({ project });
 });
@@ -99,9 +99,9 @@ router.patch("/:id", requireAuth, async (req, res) => {
   await project.save();
 
   const io = req.app.get("io");
-  io.to("role:admin").to("role:ceo").to("role:engineer").emit("project:updated", project);
+  if (io) io.to("role:admin").to("role:ceo").to("role:engineer").emit("project:updated", project);
   if (project.customer) {
-    io.to(`user:${project.customer}`).emit("project:updated", project);
+    if (io) io.to(`user:${project.customer}`).emit("project:updated", project);
 
     if (req.body.progress !== undefined) {
       const notification = await Notification.create({
@@ -111,7 +111,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
         type: "info",
         link: `/dashboard/projects/${project._id}`,
       });
-      io.to(`user:${project.customer}`).emit("notification:new", notification);
+      if (io) io.to(`user:${project.customer}`).emit("notification:new", notification);
     }
   }
 

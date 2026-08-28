@@ -38,6 +38,27 @@ npm install
 npm run dev
 ```
 
+## 2a. Deploying to Vercel
+
+Import the repository into Vercel with the repository root as the project root.
+The included `vercel.json` builds the Vite frontend and routes `/api/*` to the
+serverless Express function in `/api/index.js`.
+
+Set these Vercel environment variables for Production (and Preview if needed):
+
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `CEO_ACCESS_CODE`
+- `STAFF_ACCESS_CODE`
+- `CLIENT_ORIGIN` (your Vercel URL, for example `https://your-site.vercel.app`)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and `SMTP_SECURE` if email is required
+
+Leave `VITE_API_URL` unset when the API is deployed with this project; the
+frontend will use the same Vercel origin automatically. Socket.IO does not run
+inside Vercel serverless functions, so real-time messaging/presence requires a
+separate persistent Node.js deployment. REST authentication, projects, and
+enquiries continue to work on Vercel.
+
 ## 3. How login works
 
 - **`/login`** — public page with Customer / Engineer / Admin tabs. Engineers
