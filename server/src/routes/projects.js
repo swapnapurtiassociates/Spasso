@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { Project } from "../models/Project.js";
-import { Notification } from "../models/Notification.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
+import { Notification } from "../models/Notification.js";
+import { Project } from "../models/Project.js";
 
 const router = Router();
 
