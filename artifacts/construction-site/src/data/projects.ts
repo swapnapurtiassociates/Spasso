@@ -15,7 +15,8 @@ export interface ProjectData {
   completionYear: number | null;
   progress: number;
   featured: boolean;
-  imageUrl: string;
+  imageUrl: string; // kept for backward-compatibility — equals images[0]
+  images: string[]; // NEW: full gallery for the card carousel. Add as many as you like per project.
   tags: string[];
   keyFeatures: string[];
   clientName: string;
@@ -40,6 +41,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 100,
     featured: true,
     imageUrl: "/images/project-1.jpeg",
+    images: ["/images/project-1.jpeg", "/images/project-1-b.jpeg", "/images/project-1-c.jpeg"],
     tags: ["Luxury", "High-Rise", "Residential", "Smart Home"],
     keyFeatures: [
       "42 floors, 320 apartments",
@@ -67,6 +69,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 100,
     featured: true,
     imageUrl: "/images/project-6.jpeg",
+    images: ["/images/project-6.jpeg", "/images/project-6-b.jpeg", "/images/project-6-c.jpeg"],
     tags: ["Sea-Facing", "Ultra-Premium", "Bandra", "Luxury"],
     keyFeatures: [
       "180 sea-facing units",
@@ -94,6 +97,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 100,
     featured: true,
     imageUrl: "/images/project-7.png",
+    images: ["/images/project-7.png", "/images/project-7-b.png", "/images/project-7-c.png"],
     tags: ["LEED Platinum", "Commercial", "IT Park", "Grade-A"],
     keyFeatures: [
       "12 interconnected towers",
@@ -121,6 +125,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 100,
     featured: true,
     imageUrl: "/images/project-8.jpeg",
+    images: ["/images/project-8.jpeg", "/images/project-8-b.jpeg", "/images/project-8-c.jpeg"],
     tags: ["Healthcare", "JCI Standards", "600 Beds", "NABH"],
     keyFeatures: [
       "600 beds across 8 floors",
@@ -148,6 +153,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 72,
     featured: false,
     imageUrl: "/images/project-3.jpeg",
+    images: ["/images/project-3.jpeg", "/images/project-3-b.jpeg", "/images/project-3-c.jpeg"],
     tags: ["Eco-Luxury", "Villas", "Hillside", "Sustainable"],
     keyFeatures: [
       "48 independent villas",
@@ -175,6 +181,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 100,
     featured: false,
     imageUrl: "/images/project-5.jpeg",
+    images: ["/images/project-5.jpeg", "/images/project-5-b.jpeg", "/images/project-5-c.jpeg"],
     tags: ["Retail", "Largest Mall", "Entertainment", "Precast"],
     keyFeatures: [
       "350+ brands across 4 levels",
@@ -202,6 +209,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 58,
     featured: false,
     imageUrl: "/images/project-2.jpeg",
+    images: ["/images/project-2.jpeg", "/images/project-2-b.jpeg", "/images/project-2-c.jpeg"],
     tags: ["Net-Zero", "Vertical Garden", "Sustainable", "Bengaluru"],
     keyFeatures: [
       "Net-zero energy certified",
@@ -229,6 +237,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 44,
     featured: false,
     imageUrl: "/images/project-4.jpeg",
+    images: ["/images/project-4.jpeg", "/images/project-4-b.jpeg", "/images/project-4-c.jpeg"],
     tags: ["Infrastructure", "Metro", "Highway", "Chennai"],
     keyFeatures: [
       "62 km elevated corridor",
@@ -256,6 +265,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 100,
     featured: false,
     imageUrl: "/images/project-5.jpeg",
+    images: ["/images/project-5.jpeg", "/images/project-5-b.jpeg", "/images/project-5-c.jpeg"],
     tags: ["EV Battery", "Gigafactory", "Zero Discharge", "Industrial"],
     keyFeatures: [
       "10 GWh annual production capacity",
@@ -283,6 +293,7 @@ export const ALL_PROJECTS: ProjectData[] = [
     progress: 100,
     featured: false,
     imageUrl: "/images/project-2.jpeg",
+    images: ["/images/project-2.jpeg", "/images/project-2-b.jpeg", "/images/project-2-c.jpeg"],
     tags: ["Logistics", "ASRS", "3PL", "PEB"],
     keyFeatures: [
       "ASRS automated systems",

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion, useInView, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLocation } from "wouter";
 import {
@@ -38,6 +38,23 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
   const isInView = useInView(ref, { once: true, margin: "-40px" });
   const [, navigate] = useLocation();
   const [imgError, setImgError] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
+
+  // Falls back to the single imageUrl for any project that doesn't have an images[] array yet.
+  const gallery = project.images?.length ? project.images : [project.imageUrl];
+  const hasMultipleImages = gallery.length > 1;
+
+  const goToPreviousImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgError(false);
+    setImageIndex((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
+  };
+
+  const goToNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgError(false);
+    setImageIndex((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
+  };
 
   const handleViewProject = () => {
     const params = new URLSearchParams({
@@ -67,8 +84,8 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
       <div className="relative h-72 overflow-hidden bg-gray-100 shrink-0">
         {!imgError ? (
           <img
-            src={project.imageUrl}
-            alt={project.title}
+            src={gallery[imageIndex]}
+            alt={`${project.title} — image ${imageIndex + 1} of ${gallery.length}`}
             onError={() => setImgError(true)}
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform"
           />
@@ -89,6 +106,47 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
             {project.status}
           </span>
         </div>
+
+        {/* Carousel arrows — solid white circles, always visible on every card */}
+        {hasMultipleImages && (
+          <>
+            <button
+              type="button"
+              onClick={goToPreviousImage}
+              aria-label="Previous image"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-lg transition-transform duration-200 hover:scale-110 hover:bg-white"
+            >
+              <ChevronLeft size={20} strokeWidth={2.5} />
+            </button>
+            <button
+              type="button"
+              onClick={goToNextImage}
+              aria-label="Next image"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-lg transition-transform duration-200 hover:scale-110 hover:bg-white"
+            >
+              <ChevronRight size={20} strokeWidth={2.5} />
+            </button>
+
+            {/* Dot indicators */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+              {gallery.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Go to image ${i + 1}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImgError(false);
+                    setImageIndex(i);
+                  }}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === imageIndex ? "w-4 bg-white" : "w-1.5 bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Progress bar */}
         {project.status !== "Completed" && (

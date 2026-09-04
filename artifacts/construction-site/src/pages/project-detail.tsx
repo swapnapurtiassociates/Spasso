@@ -44,7 +44,7 @@ export default function ProjectDetail() {
           alt={project.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/90 via-[#0F172A]/40 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#0F172A]/90 via-[#0F172A]/40 to-transparent" />
 
         {/* Back button */}
         <div className="absolute top-28 left-0 right-0">

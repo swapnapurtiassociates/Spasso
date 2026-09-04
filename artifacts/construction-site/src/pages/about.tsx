@@ -1,18 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion, useInView, useScroll, useTransform } from "framer-motion";
 import {
-  ArrowRight,
-  Award,
-  Building2,
-  ChevronLeft,
-  ChevronRight,
-  HardHat,
-  Layers,
-  MapPin,
-  Quote,
-  Shield,
-  Users,
-  Zap
+    ArrowRight,
+    Award,
+    Building2,
+    ChevronLeft,
+    ChevronRight,
+    HardHat,
+    Layers,
+    MapPin,
+    Quote,
+    Shield,
+    Users,
+    Zap
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
@@ -233,7 +233,7 @@ function HeroSlider() {
             alt={HERO_SLIDES[active].label}
             className="w-full h-full object-cover opacity-85"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/50 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#0F172A] via-[#0F172A]/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0F172A]/40 to-transparent" />
         </motion.div>
       </AnimatePresence>
@@ -310,7 +310,7 @@ function GalleryStrip() {
         {GALLERY_IMAGES.map((img, i) => (
           <motion.div
             key={i}
-            className={`relative overflow-hidden cursor-zoom-in rounded-2xl border border-slate-100 group ${i === 0 ? "md:col-span-2 md:row-span-2 aspect-[16/10]" : "aspect-[4/3]"}`}
+            className={`relative overflow-hidden cursor-zoom-in rounded-2xl border border-slate-100 group ${i === 0 ? "md:col-span-2 md:row-span-2 aspect-16/10" : "aspect-4/3"}`}
             onClick={() => setLightbox(i)}
             whileHover={{ y: -6 }}
             transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
@@ -320,7 +320,7 @@ function GalleryStrip() {
               alt={img.caption}
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+            <div className="absolute inset-0 bg-linear-to-t from-[#0F172A]/80 via-[#0F172A]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
             <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
               <p className="text-white text-xs font-sans font-bold uppercase tracking-widest bg-[#2563EB] px-3 py-1.5 rounded-md inline-block">
                 {img.caption}

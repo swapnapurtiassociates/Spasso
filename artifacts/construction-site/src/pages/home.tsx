@@ -262,7 +262,7 @@ export default function Home() {
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover z-0 brightness-90"
         >
-          <source src="/images/main.mp4" type="video/mp4" />
+          <source src="/images/main.mp4" type="main/mp4" />
         </video>
 
         <div className="absolute inset-0 bg-black/30 z-10" aria-hidden="true" />
@@ -275,7 +275,7 @@ export default function Home() {
           }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/10 z-10" aria-hidden="true" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black/10 z-10" aria-hidden="true" />
 
         <div className="container relative z-20 mx-auto px-4 md:px-8 pt-24 pb-16 flex justify-center items-center">
           <div className="text-center">
@@ -445,7 +445,7 @@ export default function Home() {
                       onClick={() => { if (!hasMoved.current) jumpTo(i); }}
                     >
                       <div>
-                        <div className="relative overflow-hidden aspect-[16/10] bg-gray-100">
+                        <div className="relative overflow-hidden aspect-16/10 bg-gray-100">
                           <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
                         </div>
 
@@ -508,7 +508,7 @@ export default function Home() {
           </div>
 
           {/* Dynamic Carousel Navigation Dots */}
-          <div className="flex items-center gap-2 flex-wrap justify-center max-w-[500px] mx-auto mt-4">
+          <div className="flex items-center gap-2 flex-wrap justify-center max-w-125 mx-auto mt-4">
             {EXTENDED_PROJECTS.map((_, i) => (
               <button
                 key={i}
@@ -544,7 +544,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <FadeIn direction="left">
               <div className="relative">
-                <div className="overflow-hidden rounded-2xl shadow-2xl aspect-[4/5]">
+                <div className="overflow-hidden rounded-2xl shadow-2xl aspect-4/5">
                   <img
                     src="/images/CEO.png"
                     alt="Saurabh Rajguru – CEO"
@@ -643,7 +643,7 @@ export default function Home() {
               <FadeIn key={s.title} delay={i * 0.07}>
                 <div className="group relative overflow-hidden rounded-2xl h-72 cursor-pointer shadow-md hover:shadow-2xl hover:shadow-[#1E3A8A]/20 transition-all duration-500" style={{ minHeight: "18rem" }}>
                   <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-110" style={{ backgroundImage: `url(${s.bg})` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/90 via-[#0F172A]/50 to-[#0F172A]/20 group-hover:from-[#1E3A8A]/90 group-hover:via-[#1E3A8A]/50 group-hover:to-[#1E3A8A]/20 transition-all duration-500" />
+                  <div className="absolute inset-0 bg-linear-to-t from-[#0F172A]/90 via-[#0F172A]/50 to-[#0F172A]/20 group-hover:from-[#1E3A8A]/90 group-hover:via-[#1E3A8A]/50 group-hover:to-[#1E3A8A]/20 transition-all duration-500" />
                   <div className="absolute inset-0 flex flex-col justify-end p-7">
                     <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center mb-4 group-hover:bg-[#2563EB] transition-colors duration-300">
                       <s.icon className="h-5 w-5 text-white" />

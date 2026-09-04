@@ -14,6 +14,7 @@ yarn-error.log*
 # env
 .env
 .env.*
+.env.local
 
 # OS
 .DS_Store
@@ -29,5 +30,5 @@ Thumbs.db
 # misc
 coverage/
 
-# Large videos
-artifacts/construction-site/public/images/*.mp4
+#vercel
+.vercel/

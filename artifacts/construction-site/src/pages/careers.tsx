@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -100,7 +100,7 @@ export default function Careers() {
           }}
         />
         <motion.div
-          className="absolute inset-0 bg-gradient-to-b from-[#0F172A]/85 via-[#0F172A]/70 to-[#F8FAFC] dark:to-[#0B0F19]"
+          className="absolute inset-0 bg-linear-to-b from-[#0F172A]/85 via-[#0F172A]/70 to-[#F8FAFC] dark:to-[#0B0F19]"
           style={{ opacity: bgOpacity }}
         />
         
@@ -141,7 +141,7 @@ export default function Careers() {
           </motion.div>
         </motion.div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#F8FAFC] dark:from-[#0B0F19] to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-[#F8FAFC] dark:from-[#0B0F19] to-transparent pointer-events-none" />
       </section>
 
       {/* ── Perks Strip ───────────────────────────────────────── */}
@@ -226,7 +226,7 @@ export default function Careers() {
               </div>
 
               {/* Decorative Frame Image */}
-              <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-slate-800/40 group relative aspect-[4/3]">
+              <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-slate-800/40 group relative aspect-4/3">
                 <div className="absolute inset-0 bg-[#0F172A]/10 dark:bg-[#0B0F19]/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
                 <img
                   src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1400&auto=format&fit=crop"
