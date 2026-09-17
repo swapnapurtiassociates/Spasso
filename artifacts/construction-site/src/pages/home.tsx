@@ -260,9 +260,10 @@ export default function Home() {
           loop
           playsInline
           preload="auto"
+          // poster="/images/main.jpeg"
           className="absolute inset-0 w-full h-full object-cover z-0 brightness-90"
         >
-          <source src="/images/main.mp4" type="main/mp4" />
+          <source src="/images/main.mp4" type="video/mp4" />
         </video>
 
         <div className="absolute inset-0 bg-black/30 z-10" aria-hidden="true" />
