@@ -56,7 +56,7 @@ export default function ProjectInquiryPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden font-sans text-white flex flex-col justify-between">
+    <div className="relative min-h-screen w-full overflow-x-hidden font-sans text-white flex flex-col justify-between pt-24 md:pt-28">
       
       {/* 1. BACKGROUND VIDEO LAYER */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -77,7 +77,7 @@ export default function ProjectInquiryPage() {
       </div>
 
       {/* 2. HEADER / NAVIGATION (Z-index lifted to sit over the video) */}
-      <header className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between z-20">
+      {/* <header className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between z-20">
         <div className="flex items-center gap-3">
           <div className="border border-[#c5a880] p-1.5 rounded">
             <span className="font-serif text-xl font-bold tracking-widest text-[#c5a880]">SA</span>
@@ -86,19 +86,21 @@ export default function ProjectInquiryPage() {
             <h1 className="font-serif text-sm font-bold tracking-widest text-[#c5a880]">SWAPNAPURTI</h1>
             <p className="text-[9px] tracking-[0.25em] text-gray-400">ASSOCIATES</p>
           </div>
-        </div>
+        </div> */}
         
-        <nav className="hidden md:flex items-center gap-8 text-xs tracking-widest text-gray-300 font-medium">
+        {/* <nav className="hidden md:flex items-center gap-8 text-xs tracking-widest text-gray-300 font-medium">
           <span className="hover:text-[#c5a880] cursor-pointer transition-colors">PROJECTS</span>
           <span className="hover:text-[#c5a880] cursor-pointer transition-colors">SERVICES</span>
           <span className="hover:text-[#c5a880] cursor-pointer transition-colors">CAREERS</span>
           <span className="hover:text-[#c5a880] cursor-pointer transition-colors">ABOUT</span>
-        </nav>
+        </nav> */}
 
-        <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold tracking-wider px-6 py-2.5 rounded-full shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300">
+        {/* <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold tracking-wider px-6 py-2.5 rounded-full shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300">
           GET A QUOTE
-        </button>
-      </header>
+        </button> */}
+      {/* </header> */}
+
+   
 
       {/* 3. MAIN HERO & FORM CONTAINER (Z-index lifted to sit over the video) */}
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 z-20 w-full max-w-4xl mx-auto">
@@ -290,7 +292,7 @@ export default function ProjectInquiryPage() {
 
                 {/* WhatsApp */}
                 <a 
-                  href="https://wa.me/" 
+                  href="https://wa.me/+918379007279" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:text-[#25D366] hover:bg-white/10 hover:border-[#25D366]/50 transition-all duration-300 shadow-sm"

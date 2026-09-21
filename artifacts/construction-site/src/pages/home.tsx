@@ -5,6 +5,8 @@ import {
   Award,
   Building2,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   MapPin,
   TrendingUp,
   Users,
@@ -14,50 +16,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "../components/ui/button";
 import { FEATURED_PROJECTS } from "../data/projects";
 
-// Fallback expanded list if data/projects has fewer entries
-const EXTENDED_PROJECTS = [
-  ...FEATURED_PROJECTS,
-  {
-    id: "ext-1",
-    title: "Nirvana Premium Luxury Villas",
-    category: "Residential",
-    status: "Ongoing",
-    shortDescription: "A collection of 45 high-end smart automation villas with private infinity pools and sustainable architecture.",
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-    projectValue: "₹450 Cr",
-    areaCovered: "220,000 sq.ft"
-  },
-  {
-    image:"artifacts/construction-site/public/images/c1.jpeg",
-    id: "ext-2",
-    title: "Apex IT Global Hub",
-    category: "Commercial",
-    status: "Completed",
-    shortDescription: "State-of-the-art corporate park certified with premium environmental design metrics and multi-tier tech scaling infrastructure.",
-    projectValue: "₹1,200 Cr",
-    areaCovered: "1.5M sq.ft"
-  },
-  {
-    id: "ext-3",
-    title: "Metropolis High-Speed Transit Corridor",
-    category: "Infrastructure",
-    status: "Ongoing",
-    shortDescription: "Heavy civil engineering and structural span assembly for the critical link bridging metropolitan sectors.",
-    imageUrl: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80",
-    projectValue: "₹3,100 Cr",
-    areaCovered: "24 km Span"
-  },
-  {
-    id: "ext-4",
-    title: "Grand Horizon Luxury Resort",
-    category: "Hospitality",
-    status: "Completed",
-    shortDescription: "A sprawling 5-star beachfront development complete with integrated convention centers and structural earthworks.",
-    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
-    projectValue: "₹680 Cr",
-    areaCovered: "450,000 sq.ft"
-  }
-];
+const displayProjects = FEATURED_PROJECTS.filter((project) => project && project.title);
 
 /* ── Animation helper ─────────────────────────────────────────────── */
 function FadeIn({
@@ -126,19 +85,22 @@ export default function Home() {
   const { data: stats } = useGetOverviewStats();
   const [, navigate] = useLocation();
 
-  // Carousel State Machine Variables using the newly expanded dataset
-  const N = EXTENDED_PROJECTS.length;
-  const SPACING = 340; 
+  // Carousel state uses only the real featured projects from the project data.
+  const N = displayProjects.length;
+  const SPACING = 340;
   const DEPTH = 240;
-  
+
   const [pos, setPos] = useState(0);
   const [isGrabbing, setIsGrabbing] = useState(false);
   const pointerStart = useRef({ x: 0, pos: 0 });
   const hasMoved = useRef(false);
   const autoPlayTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const currentIdx = ((Math.round(pos) % N) + N) % N;
-  const currentProject = EXTENDED_PROJECTS[currentIdx];
+  const currentIdx = N > 0 ? ((Math.round(pos) % N) + N) % N : 0;
+  const currentProject = N > 0 ? displayProjects[currentIdx] : undefined;
+
+  const getProjectImage = (project: (typeof displayProjects)[number]) =>
+    project?.images?.[0] || project?.imageUrl || "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80";
 
   const handleViewProject = (projectTitle: string, projectCategory: string) => {
     const params = new URLSearchParams({
@@ -155,14 +117,27 @@ export default function Home() {
 
   /* ── Carousel Mechanics ────────────────────────────────────────── */
   const step = (dir: number) => {
-    setPos((prev) => Math.round(prev) + dir);
+    if (N <= 1) return;
+    setPos((prev) => {
+      const next = Math.round(prev) + dir;
+      if (next >= N) return next - N;
+      if (next < 0) return next + N;
+      return next;
+    });
   };
 
   const jumpTo = (targetIdx: number) => {
-    let off = targetIdx - currentIdx;
-    if (off > N / 2) off -= N;
-    if (off < -N / 2) off += N;
-    setPos((prev) => Math.round(prev) + off);
+    if (N <= 1) return;
+    setPos((prev) => {
+      const current = Math.round(prev);
+      let off = targetIdx - current;
+      if (off > N / 2) off -= N;
+      if (off < -N / 2) off += N;
+      const next = current + off;
+      if (next >= N) return next - N;
+      if (next < 0) return next + N;
+      return next;
+    });
   };
 
   const startAutoPlay = () => {
@@ -180,19 +155,24 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (N <= 1) {
+      stopAutoPlay();
+      return;
+    }
+
     startAutoPlay();
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") step(1);
       if (e.key === "ArrowLeft") step(-1);
     };
-    
+
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       stopAutoPlay();
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentIdx]);
+  }, [N, currentIdx]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsGrabbing(true);
@@ -346,11 +326,11 @@ export default function Home() {
       </section>
 
       {/* ── Stats Bar ───────────────────────────────────────────────── */}
-      <section className="py-20 bg-[#F8FAFC] border-y border-gray-100">
+      {/* <section className="py-20 bg-[#F8FAFC] border-y border-gray-100">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
             {[
-              { label: "Completed Projects", value: stats?.completedProjects || "120+", icon: CheckCircle2 },
+              { label: "Completed Projects", value: stats?.completedProjects || "200+", icon: CheckCircle2 },
               { label: "Expert Engineers", value: stats?.engineersAvailable || "350+", icon: Users },
               { label: "Cities Covered", value: stats?.citiesCovered || "24", icon: MapPin },
               { label: "Years Experience", value: stats?.yearsExperience || "15+", icon: TrendingUp },
@@ -359,10 +339,10 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ── Featured Projects ───────────────────────────────────────── */}
-      <section className="py-24 md:py-32 bg-white overflow-hidden">
+      <section className="py-24 md:py-32 bg-gradient-to-br from-gray-200 via-white to-gray-250 overflow-hidden">
         <div className="container mx-auto px-4 md:px-8">
           <FadeIn>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
@@ -394,133 +374,135 @@ export default function Home() {
             </div>
           </FadeIn>
 
-          {/* 3D Container Stage */}
-          <div
-            className={`car-stage ${isGrabbing ? "cursor-grabbing" : "cursor-grab"}`}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            onPointerLeave={() => { if (!isGrabbing) startAutoPlay(); }}
-            onPointerEnter={stopAutoPlay}
-          >
-            <div className="car-track-layout">
-              {EXTENDED_PROJECTS.map((project, i) => {
-                let off = i - pos;
-                if (off > N / 2) off -= N;
-                if (off < -N / 2) off += N;
-                const abs = Math.abs(off);
+          {N > 0 && (
+            <div className="relative">
+              <button
+                type="button"
+                aria-label="Previous project"
+                onClick={() => step(-1)}
+                className="absolute left-2 md:left-4 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#D1D5DB] bg-white/90 text-[#0F172A] shadow-lg shadow-slate-200/70 transition hover:scale-105 hover:bg-white"
+              >
+                <ChevronLeft size={18} />
+              </button>
 
-                if (abs > 3.15) {
-                  return (
-                    <div
-                      key={project.id}
-                      className="car-3d-card pointer-events-none opacity-0"
-                      style={{ transform: `translate3d(${off * 150}px, 0px, -1050px) scale(0.5)` }}
-                    />
-                  );
-                }
+              <button
+                type="button"
+                aria-label="Next project"
+                onClick={() => step(1)}
+                className="absolute right-2 md:right-4 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#D1D5DB] bg-white/90 text-[#0F172A] shadow-lg shadow-slate-200/70 transition hover:scale-105 hover:bg-white"
+              >
+                <ChevronRight size={18} />
+              </button>
 
-                const x = off * SPACING;
-                const z = -abs * DEPTH;
-                const rot = Math.max(-44, Math.min(44, off * -26));
-                const scale = Math.max(0.56, 1 - abs * 0.15);
-                const op = Math.max(0, 1 - abs * 0.4);
-                const isActive = abs < 0.5;
+              <div
+                className={`car-stage ${isGrabbing ? "cursor-grabbing" : "cursor-grab"}`}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                onPointerLeave={() => {
+                  if (!isGrabbing) startAutoPlay();
+                }}
+                onPointerEnter={stopAutoPlay}
+              >
+                <div className="car-track-layout">
+                  {displayProjects.map((project, i) => {
+                    let off = i - pos;
+                    if (off > N / 2) off -= N;
+                    if (off < -N / 2) off += N;
+                    const abs = Math.abs(off);
 
-                return (
-                  <div
-                    key={project.id}
-                    className="car-3d-card transition-all duration-500 ease-out"
-                    style={{
-                      transform: `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`,
-                      opacity: op.toFixed(3),
-                      zIndex: Math.round(120 - abs * 10),
-                      pointerEvents: isActive ? "auto" : "none",
-                    }}
-                  >
-                    <div 
-                      className={`group h-full flex flex-col justify-between overflow-hidden bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-300 ${
-                        isActive ? "shadow-2xl ring-1 ring-black/5" : ""
-                      }`}
-                      onClick={() => { if (!hasMoved.current) jumpTo(i); }}
-                    >
-                      <div>
-                        <div className="relative overflow-hidden aspect-16/10 bg-gray-100">
-                          <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
-                        </div>
+                    if (abs > 3.15) {
+                      return (
+                        <div
+                          key={project.id}
+                          className="car-3d-card pointer-events-none opacity-0"
+                          style={{ transform: `translate3d(${off * 150}px, 0px, -1050px) scale(0.5)` }}
+                        />
+                      );
+                    }
 
-                        <div className="p-5 md:p-6">
-                          <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                            <span className="bg-[#EFF6FF] text-[#1E3A8A] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full font-sans">
-                              {project.category}
-                            </span>
-                          </div>
+                    const x = off * SPACING;
+                    const z = -abs * DEPTH;
+                    const rot = Math.max(-44, Math.min(44, off * -26));
+                    const scale = Math.max(0.56, 1 - abs * 0.15);
+                    const op = Math.max(0, 1 - abs * 0.4);
+                    const isActive = abs < 0.5;
 
-                          <h3 className="font-serif font-bold text-lg md:text-xl text-[#0F172A] mb-2 line-clamp-1">
-                            {project.title}
-                          </h3>
-
-                          <p className="font-sans text-[#6B7280] leading-relaxed mb-4 line-clamp-2 text-xs">
-                            {project.shortDescription}
-                          </p>
-
-                          {(project.projectValue || project.areaCovered) && (
-                            <div className="grid grid-cols-2 gap-2 py-3 border-t border-gray-100">
-                              {project.projectValue && (
-                                <div>
-                                  <p className="font-sans text-[9px] font-bold uppercase tracking-widest text-[#2563EB]">Value</p>
-                                  <p className="font-sans font-semibold text-[#0F172A] text-xs truncate">{project.projectValue}</p>
-                                </div>
-                              )}
-                              {project.areaCovered && (
-                                <div>
-                                  <p className="font-sans text-[9px] font-bold uppercase tracking-widest text-[#2563EB]">Area</p>
-                                  <p className="font-sans font-semibold text-[#0F172A] text-xs truncate">{project.areaCovered}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="px-5 pb-5 md:px-6 md:pb-6">
-                        <Button
-                          className="w-full rounded-xl h-10 px-4 bg-[#1E3A8A] hover:bg-[#2563EB] text-white font-sans font-medium text-xs uppercase tracking-wider transition-all duration-300"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewProject(project.title, project.category);
+                    return (
+                      <div
+                        key={project.id}
+                        className="car-3d-card transition-all duration-500 ease-out"
+                        style={{
+                          transform: `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`,
+                          opacity: op.toFixed(3),
+                          zIndex: Math.round(120 - abs * 10),
+                          pointerEvents: isActive ? "auto" : "none",
+                        }}
+                      >
+                        <div
+                          className={`group h-full flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-white/70 bg-white/25 shadow-[0_20px_45px_rgba(15,23,42,0.22)] backdrop-blur-xl transition-all duration-300 hover:border-white/90 ${
+                            isActive ? "shadow-[0_24px_60px_rgba(37,99,235,0.3)] ring-2 ring-inset ring-white/45" : ""
+                          }`}
+                          onClick={() => {
+                            if (!hasMoved.current) jumpTo(i);
                           }}
                         >
-                          Enquire About Project
-                          <ArrowRight size={12} className="ml-2" />
-                        </Button>
+                          <div className="flex flex-col h-full">
+                            <div className="relative h-[390px] overflow-hidden rounded-2xl border-2 border-white/45 bg-white/10 shadow-[0_12px_30px_rgba(15,23,42,0.18)] sm:h-[400px]">
+                              <img src={getProjectImage(project)} alt={project.title} className="w-full h-full object-cover" />
+                              <div
+                                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0F172A]/55 via-[#0F172A]/5 to-transparent"
+                                aria-hidden="true"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="border-t border-white/25 px-5 pb-5 pt-2 md:px-6 md:pb-6 md:pt-3">
+                            <Button
+                              className="group relative w-full overflow-hidden rounded-xl h-11 px-4 bg-gradient-to-r from-[#1E3A8A] via-[#2563EB] to-[#60A5FA] hover:from-[#172554] hover:via-[#1D4ED8] hover:to-[#3B82F6] text-white border-2 border-white/70 font-sans font-semibold text-xs uppercase tracking-wider shadow-[0_10px_24px_rgba(37,99,235,0.35)] hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(37,99,235,0.5)] transition-all duration-300"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewProject(project.title, project.category);
+                              }}
+                            >
+                              <span
+                                className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/25 transition-transform duration-700 group-hover:translate-x-[420%]"
+                                aria-hidden="true"
+                              />
+                              <span className="relative">Enquire About Project</span>
+                              <ArrowRight size={14} className="relative ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Counter Indicators */}
-          <div className="font-display font-bold text-sm text-[#6B7280] mt-8 text-center tracking-wide">
-            <b className="text-[#2563EB]">{String(currentIdx + 1).padStart(2, "0")}</b> / {String(N).padStart(2, "0")} · <span>{currentProject?.title}</span>
-          </div>
+          {N > 0 && (
+            <>
+              <div className="font-display font-bold text-sm text-[#6B7280] mt-8 text-center tracking-wide">
+                <b className="text-[#2563EB]">{String(currentIdx + 1).padStart(2, "0")}</b> / {String(N).padStart(2, "0")} · <span>{currentProject?.title}</span>
+              </div>
 
-          {/* Dynamic Carousel Navigation Dots */}
-          <div className="flex items-center gap-2 flex-wrap justify-center max-w-125 mx-auto mt-4">
-            {EXTENDED_PROJECTS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => jumpTo(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === currentIdx ? "w-6 bg-[#1E3A8A]" : "w-2 bg-gray-200 hover:bg-gray-300"
-                }`}
-                aria-label={`Go to feature ${i + 1}`}
-              />
-            ))}
-          </div>
+              <div className="flex items-center gap-2 flex-wrap justify-center max-w-125 mx-auto mt-4">
+                {displayProjects.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => jumpTo(i)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      i === currentIdx ? "w-6 bg-[#1E3A8A]" : "w-2 bg-gray-200 hover:bg-gray-300"
+                    }`}
+                    aria-label={`Go to feature ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           <FadeIn delay={0.3}>
             <div className="mt-16 text-center">
@@ -530,7 +512,7 @@ export default function Home() {
                 asChild
               >
                 <Link href="/projects">
-                  Explore All 120+ Projects
+                  Explore All Projects
                   <ArrowRight size={16} className="ml-3 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -580,18 +562,17 @@ export default function Home() {
                 </h2>
                 <p className="font-sans text-[#6B7280] text-lg leading-relaxed">
                   Under the leadership of <strong className="text-[#0F172A]">Saurabh Rajguru</strong>,
-                  Swapnapurti Associates has grown from a single-city firm to a
-                  pan-India construction powerhouse delivering iconic luxury
-                  estates, premium hospitality design, and landmark mixed-use
-                  developments across 24 cities.
+                  Swapnapurti Associates has grown from a one project firm to a
+                  crossing 200 constructions, delivering iconic luxury
+                  estates, premium hospitality design. And On-site presence with a 98% on-time delivery record.
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 pt-4">
                   {[
-                    { label: "Signature Projects", value: "50+" },
-                    { label: "Construction Value", value: "₹12K Cr" },
+                    { label: "Signature Projects", value: "200+" },
+                    { label: "Construction Value", value: "₹15+ Cr" },
                     { label: "On-Time Delivery", value: "98%" },
-                    { label: "Cities Present", value: "24" },
+                    { label: "Founded In", value: "1997" },
                   ].map((m) => (
                     <div key={m.label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
                       <div className="font-serif text-2xl font-bold text-[#0F172A]">{m.value}</div>

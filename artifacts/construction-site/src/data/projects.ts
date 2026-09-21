@@ -40,8 +40,8 @@ export const ALL_PROJECTS: ProjectData[] = [
     completionYear: 2023,
     progress: 100,
     featured: true,
-    imageUrl: "/images/project-1.jpeg",
-    images: ["/images/project-1.jpeg", "/images/project-1-b.jpeg", "/images/project-1-c.jpeg"],
+    imageUrl: "/images/1.jpeg",
+    images: ["/images/1.jpeg", "/images/2.jpeg", "/images/3.jpeg"],
     tags: ["Luxury", "High-Rise", "Residential", "Smart Home"],
     keyFeatures: [
       "42 floors, 320 apartments",
@@ -68,8 +68,8 @@ export const ALL_PROJECTS: ProjectData[] = [
     completionYear: 2024,
     progress: 100,
     featured: true,
-    imageUrl: "/images/project-6.jpeg",
-    images: ["/images/project-6.jpeg", "/images/project-6-b.jpeg", "/images/project-6-c.jpeg"],
+    imageUrl: "/images/2.jpeg",
+    images: ["/images/2.jpeg", "/images/3.jpeg", "/images/4.jpeg"],
     tags: ["Sea-Facing", "Ultra-Premium", "Bandra", "Luxury"],
     keyFeatures: [
       "180 sea-facing units",
@@ -96,8 +96,8 @@ export const ALL_PROJECTS: ProjectData[] = [
     completionYear: 2022,
     progress: 100,
     featured: true,
-    imageUrl: "/images/project-7.png",
-    images: ["/images/project-7.png", "/images/project-7-b.png", "/images/project-7-c.png"],
+    imageUrl: "/images/3.jpeg",
+    images: ["/images/3.jpeg", "/images/4.jpeg", "/images/5.jpeg"],
     tags: ["LEED Platinum", "Commercial", "IT Park", "Grade-A"],
     keyFeatures: [
       "12 interconnected towers",
@@ -124,8 +124,8 @@ export const ALL_PROJECTS: ProjectData[] = [
     completionYear: 2023,
     progress: 100,
     featured: true,
-    imageUrl: "/images/project-8.jpeg",
-    images: ["/images/project-8.jpeg", "/images/project-8-b.jpeg", "/images/project-8-c.jpeg"],
+    imageUrl: "/images/4.jpeg",
+    images: ["/images/4.jpeg", "/images/5.jpeg", "/images/1.jpeg"],
     tags: ["Healthcare", "JCI Standards", "600 Beds", "NABH"],
     keyFeatures: [
       "600 beds across 8 floors",
