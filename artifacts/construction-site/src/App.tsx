@@ -6,6 +6,7 @@ import { useInactivityLogout } from "@/hooks/use-inactivity-logout";
 import About from "@/pages/about";
 import Careers from "@/pages/careers";
 import CeoPortal from "@/pages/ceo-portal";
+import Confirmation from "@/pages/confirmation";
 import Contact from "@/pages/contact";
 import AdminDashboard from "@/pages/dashboard/admin";
 import AdminEnquiries from "@/pages/dashboard/admin-enquiries";
@@ -51,6 +52,7 @@ function Router() {
         <Route path="/services" component={Services} />
         <Route path="/careers" component={Careers} />
         <Route path="/contact" component={Contact} />
+        <Route path="/confirmation" component={Confirmation} />
         <Route path="/login" component={Login} />
         <Route path="/signup" component={Signup} />
         <Route path="/forgot-password" component={ForgotPassword} />

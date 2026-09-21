@@ -1,10 +1,10 @@
 import { Router } from "express";
+import { requireAuth, requireRole } from "../middleware/auth.js";
 import { Enquiry } from "../models/Enquiry.js";
 import { Notification } from "../models/Notification.js";
 import { User } from "../models/User.js";
-import { requireAuth, requireRole } from "../middleware/auth.js";
-import { validateEmail, validateEnquiryPhone } from "../utils/validation.js";
 import { sendEnquiryEmails } from "../utils/email/emailService.js";
+import { validateEmail, validateEnquiryPhone } from "../utils/validation.js";
 
 const router = Router();
 
@@ -78,14 +78,11 @@ router.post("/", async (req, res) => {
     // ── Email confirmation (best-effort, never blocks response) ──────────────
     // Fires user confirmation + admin notification in parallel.
     // Failures are logged but never break the HTTP response.
-    sendEnquiryEmails(enquiry)
-      .then(({ userEmail, adminEmail }) => {
-        if (!userEmail.success)
-          console.error('[enquiries/email] User confirmation failed:', userEmail.error?.message);
-        if (!adminEmail.success)
-          console.error('[enquiries/email] Admin notification failed:', adminEmail.error?.message);
-      })
-      .catch((err) => console.error('[enquiries/email] Unexpected error:', err));
+    const { userEmail, adminEmail } = await sendEnquiryEmails(enquiry);
+    if (!userEmail.success)
+      console.error('[enquiries/email] User confirmation failed:', userEmail.error?.message);
+    if (!adminEmail.success)
+      console.error('[enquiries/email] Admin notification failed:', adminEmail.error?.message);
 
     // Best-effort real-time + persisted notification to staff. Never let a
     // notification failure block the enquiry confirmation response.
@@ -111,7 +108,11 @@ router.post("/", async (req, res) => {
       console.error("[enquiries/notify]", notifyErr);
     }
 
-    res.status(201).json({ message: "Thank you! Your enquiry has been submitted successfully. A confirmation email has been sent to your inbox.", enquiry });
+    res.status(201).json({
+      message: "Thank you! Your enquiry has been submitted successfully.",
+      confirmationEmailSent: userEmail.success,
+      enquiry,
+    });
   } catch (err) {
     if (err?.name === "ValidationError") {
       return res.status(400).json({ message: "Validation failed", errors: err.errors });

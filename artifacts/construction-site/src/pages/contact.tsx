@@ -1,5 +1,7 @@
+import { API_BASE_URL } from '@workspace/replit-auth-web';
 import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
 
 // Define a type for the form state to satisfy TypeScript
 interface FormDataState {
@@ -14,6 +16,7 @@ interface FormDataState {
 }
 
 export default function ProjectInquiryPage() {
+  const [, navigate] = useLocation();
   const [formData, setFormData] = useState<FormDataState>({
     fullName: '',
     email: '',
@@ -24,6 +27,8 @@ export default function ProjectInquiryPage() {
     location: '',
     description: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Use a ref to target the video element directly
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -50,9 +55,38 @@ export default function ProjectInquiryPage() {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Inquiry Submitted:", formData);
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/enquiries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const responseText = await response.text();
+      let result: { message?: string } = {};
+
+      if (responseText.trim()) {
+        try {
+          result = JSON.parse(responseText) as { message?: string };
+        } catch {
+          result = {};
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(result.message || `Submission failed (${response.status}). Please try again.`);
+      }
+
+      navigate(`/confirmation?name=${encodeURIComponent(formData.fullName)}`);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'We could not submit your enquiry. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -202,13 +236,12 @@ export default function ProjectInquiryPage() {
                   onChange={handleChange}
                 >
                   <option value="" disabled>Select type</option>
-                  <option value="commercial">Commercial</option>
-                  <option value="residential">Residential</option>
-                  <option value="industrial">Industrial</option>
-                  <option value="interior">Interior Design</option>
-                  <option value="landscape">Landscape</option>
-                  <option value="renovation">Renovation</option>
-                  <option value="other">Other</option>
+                  <option value="Commercial">Commercial</option>
+                  <option value="Residential">Residential</option>
+                  <option value="Infrastructure">Infrastructure</option>
+                  <option value="Industrial">Industrial</option>
+                  <option value="Mixed-Use">Mixed-Use</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
               <div>
@@ -220,12 +253,11 @@ export default function ProjectInquiryPage() {
                   onChange={handleChange}
                 >
                   <option value="" disabled>Select range</option>
-                  <option value="under-50l">Under ₹10 Lakhs</option>
-                  <option value="under-50l">Under ₹20 Lakhs</option>
-                  <option value="under-50l">Under ₹30 Lakhs</option>
-                  <option value="under-50l">Under ₹40 Lakhs</option>
-                  <option value="50l-2cr">₹50 Lakhs - ₹1 Crores</option>
-                  <option value="above-2cr">₹1 Crores - ₹2 Crores</option>
+                  <option value="&lt; 10 Cr">Under ₹10 Crores</option>
+                  <option value="10-50 Cr">₹10 - ₹50 Crores</option>
+                  <option value="50-100 Cr">₹50 - ₹100 Crores</option>
+                  <option value="100-500 Cr">₹100 - ₹500 Crores</option>
+                  <option value="&gt; 500 Cr">Above ₹500 Crores</option>
                 </select>
               </div>
             </div>
@@ -260,12 +292,19 @@ export default function ProjectInquiryPage() {
             </div>
 
             {/* Submit Button */}
+            {submitError && (
+              <p className="rounded-lg border border-red-300/30 bg-red-500/10 px-4 py-3 text-sm text-red-200" role="alert">
+                {submitError}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold tracking-wider py-3.5 rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300"
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60 text-white font-bold tracking-wider py-3.5 rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300"
             >
               <Send size={16} />
-              <span>SEND INQUIRY</span>
+              <span>{isSubmitting ? 'SENDING...' : 'SEND INQUIRY'}</span>
             </button>
           </form>
 
