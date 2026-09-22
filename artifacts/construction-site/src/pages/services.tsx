@@ -192,7 +192,7 @@ export default function Services() {
             loop
             playsInline
             preload="metadata"
-            poster={`${baseUrl}images/big.jpeg`}
+           // poster={`${baseUrl}images/big.jpeg`}
             className="h-full w-full object-cover"
           >
             <source src={`${baseUrl}images/services.mp4`} type="video/mp4" />
