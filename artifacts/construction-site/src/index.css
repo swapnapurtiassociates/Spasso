@@ -258,6 +258,192 @@
   contain-intrinsic-size: 0 620px;
 }
 
+.services-hero-title {
+  animation: services-title-in 900ms cubic-bezier(.23, 1, .32, 1) both;
+}
+
+.service-card,
+.process-card {
+  will-change: transform;
+}
+
+.services-blueprint-scan {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.42), transparent);
+  box-shadow: 0 0 18px rgba(37, 99, 235, 0.2);
+  animation: services-blueprint-scan 12s ease-in-out infinite;
+}
+
+.services-blueprint-beam {
+  top: 0;
+  width: 16vw;
+  min-width: 120px;
+  max-width: 240px;
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.08), transparent);
+  filter: blur(3px);
+  transform: skewX(-18deg);
+  animation: services-blueprint-beam 16s ease-in-out infinite;
+}
+
+.services-blueprint-measure {
+  width: min(420px, 34vw);
+  height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(37, 99, 235, 0.2) 0 1px, transparent 1px 10px);
+  opacity: 0.55;
+}
+
+.services-blueprint-measure::before,
+.services-blueprint-measure::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  width: 1px;
+  height: 9px;
+  background: rgba(37, 99, 235, 0.28);
+}
+
+.services-blueprint-measure::before { left: 0; }
+.services-blueprint-measure::after { right: 0; }
+
+.services-blueprint-measure-top {
+  top: 11%;
+  left: 8%;
+  animation: services-blueprint-measure 11s ease-in-out infinite;
+}
+
+.services-blueprint-measure-bottom {
+  right: 8%;
+  bottom: 12%;
+  animation: services-blueprint-measure 11s ease-in-out -5s infinite;
+}
+
+.services-blueprint-crosshair {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  border-radius: 999px;
+  opacity: 0.7;
+  animation: services-blueprint-crosshair 8s ease-in-out infinite;
+}
+
+.services-blueprint-crosshair::before,
+.services-blueprint-crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.services-blueprint-crosshair::before {
+  top: 50%;
+  left: -10px;
+  width: 52px;
+  height: 1px;
+}
+
+.services-blueprint-crosshair::after {
+  top: -10px;
+  left: 50%;
+  width: 1px;
+  height: 52px;
+}
+
+.services-blueprint-crosshair-one {
+  top: 28%;
+  right: 13%;
+}
+
+.services-blueprint-crosshair-two {
+  bottom: 25%;
+  left: 12%;
+  animation-delay: -3s;
+}
+
+.services-blueprint-corner {
+  top: 14%;
+  width: 180px;
+  height: 180px;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  animation: services-blueprint-pulse 9s ease-in-out infinite;
+}
+
+.services-blueprint-corner::before,
+.services-blueprint-corner::after {
+  content: "";
+  position: absolute;
+  background: rgba(37, 99, 235, 0.16);
+}
+
+.services-blueprint-corner::before {
+  top: 50%;
+  left: -24px;
+  width: calc(100% + 48px);
+  height: 1px;
+}
+
+.services-blueprint-corner::after {
+  top: -24px;
+  left: 50%;
+  width: 1px;
+  height: calc(100% + 48px);
+}
+
+.services-blueprint-corner-left {
+  left: -90px;
+  transform: rotate(18deg);
+}
+
+.services-blueprint-corner-right {
+  right: -90px;
+  transform: rotate(-18deg);
+  animation-delay: -4s;
+}
+
+@keyframes services-blueprint-scan {
+  0%, 100% { opacity: 0; transform: translateY(0); }
+  15%, 70% { opacity: 1; }
+  85% { opacity: 0; transform: translateY(72vh); }
+}
+
+@keyframes services-blueprint-beam {
+  0%, 100% { left: -20%; opacity: 0; }
+  15%, 75% { opacity: 1; }
+  90% { left: 115%; opacity: 0; }
+}
+
+@keyframes services-blueprint-measure {
+  0%, 100% { opacity: 0.25; transform: scaleX(0.75); }
+  50% { opacity: 0.7; transform: scaleX(1); }
+}
+
+@keyframes services-blueprint-crosshair {
+  0%, 100% { transform: rotate(0deg) scale(0.85); opacity: 0.35; }
+  50% { transform: rotate(90deg) scale(1.08); opacity: 0.75; }
+}
+
+@keyframes services-blueprint-pulse {
+  0%, 100% { opacity: 0.35; scale: 1; }
+  50% { opacity: 0.75; scale: 1.08; }
+}
+
+@keyframes services-title-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .services-hero-title {
+    animation: none;
+  }
+
+  .services-blueprint-scan,
+  .services-blueprint-beam,
+  .services-blueprint-measure,
+  .services-blueprint-crosshair,
+  .services-blueprint-corner {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .project-blueprint-grid,
   .project-blueprint-ring {

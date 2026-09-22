@@ -27,7 +27,7 @@ function FadeIn({
   direction?: "up" | "left" | "right";
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const isInView = useInView(ref, { once: true, amount: 0.2, margin: "-40px 0px -80px" });
   const initial =
     direction === "up"
       ? { opacity: 0, y: 28 }
@@ -178,33 +178,36 @@ export default function Services() {
   const contentY = useTransform(scrollYProgress, [0, 0.4], [0, 50]);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-white text-[#0F172A] overflow-hidden">
+    <div ref={containerRef} className="services-page min-h-screen bg-white text-[#0F172A] overflow-hidden">
       {/* ── High-End Full-Screen Light Parallax Hero ──────────────── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 border-b border-slate-100">
-        {/* Enlarged Parallax Hero Background */}
+        {/* Uploaded construction video with a static image fallback. */}
         <motion.div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat will-change-transform"
-          style={{ 
-            backgroundImage: `url(${baseUrl}images/big.jpeg)`,
-            scale: bgScale
-          }}
+          className="absolute inset-0 overflow-hidden will-change-transform"
+          style={{ scale: bgScale }}
+        >
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={`${baseUrl}images/big.jpeg`}
+            className="h-full w-full object-cover"
+          >
+            <source src={`${baseUrl}images/services.mp4`} type="video/mp4" />
+          </video>
+        </motion.div>
+        <div
+          className="pointer-events-none absolute inset-0 bg-linear-to-r from-slate-950/75 via-slate-900/45 to-slate-950/60"
+          aria-hidden="true"
         />
         {/* Architectural light multi-stop gradient mask for maximum contrast */}
         <motion.div 
-          className="absolute inset-0 bg-linear-to-b from-slate-900 to-slate-800" 
+          className="absolute inset-0 bg-linear-to-b from-slate-950/55 via-transparent to-slate-950/65" 
           style={{ opacity: bgOpacity }}
         />
         
-        {/* Blueprint Layout Subtle Grid Lines */}
-        <div
-          className="absolute inset-0 opacity-[0.06] pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(15,23,42,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,.3) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-          }}
-        />
-
         <motion.div 
           className="container relative z-10 mx-auto px-4 md:px-8 text-center"
           style={{ y: contentY }}
@@ -217,19 +220,19 @@ export default function Services() {
           >
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="h-px w-10 bg-[#2563EB]" />
-              <span className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-[#2563EB]">
+              <span className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-[#93C5FD]">
                 What We Offer
               </span>
               <div className="h-px w-10 bg-[#2563EB]" />
             </div>
             
-            <h1 className="font-serif text-5xl md:text-8xl font-bold text-[#f0f0f0] mb-8 leading-[1.15] tracking-tight max-w-5xl mx-auto">
+            <h1 className="services-hero-title font-serif text-5xl md:text-8xl font-bold text-[#f0f0f0] mb-8 leading-[1.15] tracking-tight max-w-5xl mx-auto">
               Built for Excellence, 
             </h1>
-            <h1 className="font-serif text-5xl md:text-8xl font-bold text-[#0a4b9a] mb-8 leading-[1.15] tracking-tight max-w-5xl mx-auto">Designed for You </h1>
+            <h1 className="services-hero-title font-serif text-5xl md:text-8xl font-bold text-[#93C5FD] mb-8 leading-[1.15] tracking-tight max-w-5xl mx-auto">Designed for You </h1>
 
             
-            <p className="font-sans text-[#475569] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12 font-normal">
+            <p className="font-sans text-white/80 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12 font-normal">
               We deliver premium construction and design solutions that combine technical precision with elegant aesthetics — across every stage of the build.
             </p>
             
@@ -242,7 +245,7 @@ export default function Services() {
               </Button>
               <Button
                 variant="outline"
-                className="rounded-xl h-14 px-10 border-[#0F172A]/20 bg-white/40 text-[#0F172A] hover:bg-slate-50 font-sans text-xs font-semibold uppercase tracking-widest backdrop-blur-sm transition-all duration-300"
+                className="rounded-xl h-14 px-10 border-white/40 bg-white/10 text-white hover:bg-white/20 font-sans text-xs font-semibold uppercase tracking-widest backdrop-blur-sm transition-all duration-300"
                 asChild
               >
                 <Link href="/projects">View Portfolio</Link>
@@ -256,30 +259,45 @@ export default function Services() {
       </section>
 
       {/* ── Premium Light Card Matrix Rows ───────────────────────── */}
-      <section className="py-24 relative bg-[#F8FAFC] z-10">
-        <div className="container mx-auto px-4 md:px-8 space-y-16">
+      <section className="services-list relative z-10 bg-[#F8FAFC] py-24">
+        <div className="services-blueprint-scan pointer-events-none absolute inset-x-0 top-0" aria-hidden="true" />
+        <div className="services-blueprint-beam pointer-events-none absolute inset-y-0" aria-hidden="true" />
+        <div className="services-blueprint-measure services-blueprint-measure-top pointer-events-none absolute" aria-hidden="true" />
+        <div className="services-blueprint-measure services-blueprint-measure-bottom pointer-events-none absolute" aria-hidden="true" />
+        <div className="services-blueprint-crosshair services-blueprint-crosshair-one pointer-events-none absolute" aria-hidden="true" />
+        <div className="services-blueprint-crosshair services-blueprint-crosshair-two pointer-events-none absolute" aria-hidden="true" />
+        <div className="services-blueprint-corner services-blueprint-corner-left pointer-events-none absolute" aria-hidden="true" />
+        <div className="services-blueprint-corner services-blueprint-corner-right pointer-events-none absolute" aria-hidden="true" />
+
+        <div className="relative z-10 container mx-auto max-w-7xl px-4 md:px-8 space-y-20">
           {services.map((service, index) => (
-            <FadeIn key={service.title} delay={index * 0.05}>
+            <FadeIn
+              key={service.title}
+              delay={0.04}
+              direction={index % 2 === 0 ? "left" : "right"}
+            >
               <div
-                className={`group grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-xl hover:shadow-2xl hover:border-blue-500/30 transition-all duration-500 ${
+                className={`service-card group relative grid min-h-170 md:min-h-140 md:grid-cols-2 gap-0 overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)] hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(37,99,235,0.16)] hover:border-blue-500/30 transition-all duration-500 ${
                   index % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
                 }`}
               >
                 {/* Image */}
-                <div className="relative h-80 md:h-auto overflow-hidden bg-slate-100">
+                <div className="service-image relative min-h-80 md:h-full md:min-h-0 overflow-hidden bg-slate-100">
                   <img
                     src={service.image}
                     alt={service.title}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).style.display = "none";
                     }}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    loading={index < 2 ? "eager" : "lazy"}
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-slate-900/10 via-transparent to-transparent opacity-60 transition-opacity duration-500" />
                   
                   {/* Premium Icon badge overlay */}
                   <div
-                    className="absolute top-6 left-6 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg border border-white/20"
+                    className="absolute top-6 left-6 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg border border-white/30 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110"
                     style={{ backgroundColor: service.accent }}
                   >
                     <service.icon className="h-6 w-6 text-white" />
@@ -287,7 +305,8 @@ export default function Services() {
                 </div>
 
                 {/* Content */}
-                <div className="p-8 md:p-14 flex flex-col justify-center bg-white">
+                <div className="relative flex h-full flex-col justify-center p-8 md:p-14 bg-white">
+                  <div className="absolute left-0 top-8 bottom-8 w-1 origin-top scale-y-0 bg-linear-to-b from-[#2563EB] to-[#60A5FA] transition-transform duration-500 group-hover:scale-y-100" />
                   <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#2563EB] font-semibold mb-3">
                     {service.subtitle}
                   </span>
@@ -300,20 +319,21 @@ export default function Services() {
 
                   <ul className="space-y-3 mb-8">
                     {service.benefits.map((b) => (
-                      <li key={b} className="flex items-center gap-3 font-sans text-sm text-[#334155]">
-                        <CheckCircle className="h-4 w-4 text-[#2563EB] shrink-0" />
+                      <li key={b} className="flex items-center gap-3 font-sans text-sm text-[#334155] transition-transform duration-300 group-hover:translate-x-1">
+                        <CheckCircle className="h-4 w-4 text-[#2563EB] shrink-0 transition-transform duration-300 group-hover:scale-110" />
                         {b}
                       </li>
                     ))}
                   </ul>
 
                   <Button
-                    className="self-start rounded-xl h-12 px-6 bg-[#0F172A] hover:bg-[#2563EB] text-white font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-300 group/btn"
+                    className="group/btn relative self-start h-12 overflow-hidden rounded-xl border border-blue-400/30 bg-linear-to-r from-[#0F172A] via-[#1E3A8A] to-[#2563EB] px-6 text-white font-sans text-xs font-semibold uppercase tracking-wider shadow-[0_10px_25px_rgba(30,58,138,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(37,99,235,0.35)]"
                     asChild
                   >
                     <Link href="/contact">
-                      Enquire Now
-                      <ArrowRight size={14} className="ml-2 transition-transform group-hover/btn:translate-x-1" />
+                      <span className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/25 transition-transform duration-700 group-hover/btn:translate-x-[420%]" aria-hidden="true" />
+                      <span className="relative">Enquire Now</span>
+                      <ArrowRight size={14} className="relative ml-2 transition-transform group-hover/btn:translate-x-1" />
                     </Link>
                   </Button>
                 </div>
@@ -344,7 +364,7 @@ export default function Services() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {process.map((p, i) => (
               <FadeIn key={p.step} delay={i * 0.1}>
-                <div className="relative p-8 bg-[#F8FAFC] border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group">
+                <div className="process-card relative p-8 bg-[#F8FAFC] border border-slate-200/60 rounded-2xl shadow-sm hover:-translate-y-1 hover:border-blue-300/70 hover:shadow-[0_16px_35px_rgba(37,99,235,0.12)] transition-all duration-300 group">
                   {/* Architectural linking lines */}
                   {i < process.length - 1 && (
                     <div className="hidden lg:block absolute top-12 right-0 translate-x-1/2 w-6 h-px bg-slate-200 z-10" />
