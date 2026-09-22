@@ -16,7 +16,7 @@ interface FormDataState {
 }
 
 export default function ProjectInquiryPage() {
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const [formData, setFormData] = useState<FormDataState>({
     fullName: '',
     email: '',
@@ -29,6 +29,7 @@ export default function ProjectInquiryPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [selectedProject, setSelectedProject] = useState('');
 
   // Use a ref to target the video element directly
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -42,6 +43,32 @@ export default function ProjectInquiryPage() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.split('?')[1] || '');
+    const project = query.get('project') || '';
+    const projectType = query.get('type') || '';
+    const message = query.get('message') || '';
+    const allowedTypes = ['Residential', 'Commercial', 'Infrastructure', 'Industrial', 'Mixed-Use', 'Other'];
+    const matchingType = allowedTypes.includes(projectType)
+      ? projectType
+      : projectType.toLowerCase().includes('residential') || projectType.toLowerCase().includes('luxury')
+        ? 'Residential'
+        : projectType.toLowerCase().includes('commercial')
+          ? 'Commercial'
+          : projectType.toLowerCase().includes('infrastructure')
+            ? 'Infrastructure'
+            : projectType.toLowerCase().includes('industrial')
+              ? 'Industrial'
+              : '';
+
+    if (project) setSelectedProject(project);
+    setFormData((previous) => ({
+      ...previous,
+      projectType: previous.projectType || matchingType,
+      description: previous.description || message,
+    }));
+  }, [location]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -167,6 +194,13 @@ export default function ProjectInquiryPage() {
         {/* PREMIUM GLASSMORPHIC FORM CARD */}
         <div className="w-full bg-slate-950/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl shadow-black/50">
           <h3 className="font-serif text-2xl text-center text-white mb-6 tracking-wide">Project Inquiry</h3>
+
+          {selectedProject && (
+            <div className="mb-6 rounded-xl border border-blue-300/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-100">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">Project selected</span>
+              <span className="mt-1 block font-serif text-lg">{selectedProject}</span>
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Row 1 */}

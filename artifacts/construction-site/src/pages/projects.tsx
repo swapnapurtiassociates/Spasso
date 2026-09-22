@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion, useInView, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLocation } from "wouter";
 import {
@@ -42,19 +42,6 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
 
   // Falls back to the single imageUrl for any project that doesn't have an images[] array yet.
   const gallery = project.images?.length ? project.images : [project.imageUrl];
-  const hasMultipleImages = gallery.length > 1;
-
-  const goToPreviousImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setImgError(false);
-    setImageIndex((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
-  };
-
-  const goToNextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setImgError(false);
-    setImageIndex((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
-  };
 
   const handleViewProject = () => {
     const params = new URLSearchParams({
@@ -75,7 +62,7 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.75, delay: index * 0.05, ease: [0.25, 1, 0.5, 1] }}
-      className="group relative bg-white rounded-2xl overflow-hidden flex flex-col border border-gray-100 hover:border-[#1E3A8A]/20 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 shadow-md"
+      className="project-card group relative overflow-hidden rounded-2xl border border-white/70 bg-white/80 shadow-[0_16px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-[#60A5FA]/70 hover:shadow-[0_24px_55px_rgba(37,99,235,0.18)]"
     >
       {/* Blue left border reveal */}
       <div className="absolute top-0 left-0 w-1 h-0 bg-[#1E3A8A] group-hover:h-full transition-all duration-500 z-10" />
@@ -87,10 +74,12 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
             src={gallery[imageIndex]}
             alt={`${project.title} — image ${imageIndex + 1} of ${gallery.length}`}
             onError={() => setImgError(true)}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform"
+            loading={index < 3 ? "eager" : "lazy"}
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100">
             <span className="font-serif text-[#1E3A8A] font-bold text-3xl opacity-20">
               {project.title[0]}
             </span>
@@ -98,7 +87,7 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
         )}
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#0F172A]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Status badge */}
         <div className="absolute top-4 right-4 z-10">
@@ -106,47 +95,6 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
             {project.status}
           </span>
         </div>
-
-        {/* Carousel arrows — solid white circles, always visible on every card */}
-        {hasMultipleImages && (
-          <>
-            <button
-              type="button"
-              onClick={goToPreviousImage}
-              aria-label="Previous image"
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-lg transition-transform duration-200 hover:scale-110 hover:bg-white"
-            >
-              <ChevronLeft size={20} strokeWidth={2.5} />
-            </button>
-            <button
-              type="button"
-              onClick={goToNextImage}
-              aria-label="Next image"
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-lg transition-transform duration-200 hover:scale-110 hover:bg-white"
-            >
-              <ChevronRight size={20} strokeWidth={2.5} />
-            </button>
-
-            {/* Dot indicators */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
-              {gallery.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Go to image ${i + 1}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setImgError(false);
-                    setImageIndex(i);
-                  }}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === imageIndex ? "w-4 bg-white" : "w-1.5 bg-white/50"
-                  }`}
-                />
-              ))}
-            </div>
-          </>
-        )}
 
         {/* Progress bar */}
         {project.status !== "Completed" && (
@@ -160,7 +108,7 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col p-6 bg-white">
+      <div className="flex-1 flex flex-col bg-white/55 p-6 backdrop-blur-md">
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <span className="bg-[#EFF6FF] text-[#1E3A8A] text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full font-sans">
             {project.category}
@@ -215,10 +163,11 @@ function ProjectCard({ project, index }: { project: ProjectData; index: number }
         )}
 
         <Button
-          className="w-full rounded-xl h-11 bg-[#0F172A] hover:bg-[#1E3A8A] text-white font-sans font-medium text-xs uppercase tracking-wider transition-all duration-300 group/btn"
+          className="group/btn relative h-12 w-full overflow-hidden rounded-xl border-2 border-white/70 bg-linear-to-r from-[#0F172A] via-[#1E3A8A] to-[#2563EB] text-white font-sans text-xs font-semibold uppercase tracking-wider shadow-[0_12px_25px_rgba(30,58,138,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:from-[#172554] hover:via-[#1D4ED8] hover:to-[#60A5FA] hover:shadow-[0_16px_32px_rgba(37,99,235,0.4)]"
           onClick={handleViewProject}
         >
-          Enquire About This Project
+          <span className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/25 transition-transform duration-700 group-hover/btn:translate-x-[420%]" aria-hidden="true" />
+          <span className="relative">Enquire About This Project</span>
           <ArrowRight size={14} className="ml-2 transition-transform group-hover/btn:translate-x-1" />
         </Button>
       </div>
@@ -252,7 +201,7 @@ export default function Projects() {
         />
         {/* Crisp light overlay gradient */}
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-b from-[#0F172A]/85 via-[#0F172A]/70 to-[#F8FAFC]" 
+          className="absolute inset-0 bg-linear-to-b from-[#0F172A]/85 via-[#0F172A]/70 to-[#F8FAFC]"
           style={{ opacity: bgOpacity }}
         />
         {/* Architecture Grid Mesh Blueprint Texture */}
@@ -306,7 +255,7 @@ export default function Projects() {
             ].map((s, i) => (
               <div
                 key={s.label}
-                className={`text-center px-8 py-4 md:py-3 min-w-[140px] ${
+                className={`text-center px-8 py-4 md:py-3 min-w-35 ${
                   i > 0 ? "md:border-l border-gray-100" : ""
                 }`}
               >
@@ -322,11 +271,23 @@ export default function Projects() {
         </motion.div>
 
         {/* Cinematic bottom layout blend */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#F8FAFC] to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-[#F8FAFC] to-transparent pointer-events-none" />
       </section>
 
       {/* ── Project Grid Section ────────────────────────────────── */}
-      <section className="py-24 relative bg-[#F8FAFC] z-10">
+      <section className="relative z-10 overflow-hidden bg-[#F8FAFC] py-24">
+        <div
+          aria-hidden="true"
+          className="project-blueprint-grid pointer-events-none absolute inset-0 opacity-50"
+          style={{
+            backgroundImage: "linear-gradient(rgba(37,99,235,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,.08) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="project-blueprint-ring pointer-events-none absolute -right-32 top-20 h-80 w-80 rounded-full border border-blue-200/50"
+        />
         <div className="container mx-auto px-4 md:px-8">
           {/* Results count indicator */}
           <FadeIn className="mb-10 pb-4 border-b border-gray-200">

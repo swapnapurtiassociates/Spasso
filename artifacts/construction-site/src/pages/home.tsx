@@ -239,8 +239,8 @@ export default function Home() {
           muted
           loop
           playsInline
-          preload="auto"
-          // poster="/images/main.jpeg"
+          preload="none"
+          poster="/images/big.jpeg"
           className="absolute inset-0 w-full h-full object-cover z-0 brightness-90"
         >
           <source src="/images/vidmain.mp4" type="video/mp4" />
