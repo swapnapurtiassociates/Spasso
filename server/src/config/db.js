@@ -3,8 +3,7 @@ import mongoose from "mongoose";
 export async function connectDB() {
   try {
     const uri = process.env.MONGODB_URI;
-      console.log("RAW URI:");
-      console.log(JSON.stringify(process.env.MONGODB_URI));
+    if (!uri) throw new Error("MONGODB_URI must be configured before connecting");
     const conn = await mongoose.connect(uri, {
       dbName: "swapnapurti",
       family: 4,

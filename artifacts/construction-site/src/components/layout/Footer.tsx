@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
 import { Link } from "wouter";
 
 export function Footer() {
@@ -47,13 +48,19 @@ export function Footer() {
             </p>
 
             <div className="mt-8 flex gap-3">
-              {["in", "fb", "tw", "ig"].map((s) => (
+              {[
+                { label: "LinkedIn", icon: FaLinkedinIn },
+                { label: "Facebook", icon: FaFacebookF },
+                { label: "Twitter", icon: FaXTwitter },
+                { label: "Instagram", icon: FaInstagram },
+              ].map(({ label, icon: Icon }) => (
                 <a
-                  key={s}
+                  key={label}
                   href="#"
-                  className="w-9 h-9 rounded-lg bg-white/5 hover:bg-[#1E3A8A] border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-all duration-300 text-xs uppercase font-bold"
+                  aria-label={label}
+                  className="w-9 h-9 rounded-lg bg-white/5 hover:bg-[#1E3A8A] border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-all duration-300"
                 >
-                  {s}
+                  <Icon size={16} strokeWidth={1.8} />
                 </a>
               ))}
             </div>

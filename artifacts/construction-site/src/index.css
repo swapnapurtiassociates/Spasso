@@ -188,6 +188,16 @@
     @apply border-border;
   }
 
+  /* Use the app's password controls instead of Edge's native reveal button. */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
+
+  html, body {
+    overflow-x: hidden;
+  }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }

@@ -144,7 +144,7 @@ export default function Home() {
     stopAutoPlay();
     autoPlayTimer.current = setInterval(() => {
       step(1);
-    }, 3800);
+    }, 2000);
   };
 
   const stopAutoPlay = () => {
@@ -206,6 +206,7 @@ export default function Home() {
           height: 520px;
           margin: 0 auto;
           max-width: 100%;
+          overflow: hidden;
           perspective: 1700px;
           touch-action: pan-y;
           user-select: none;
@@ -239,7 +240,7 @@ export default function Home() {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           // poster="/images/main.jpeg"
           className="absolute inset-0 w-full h-full object-cover z-0 brightness-90"
         >
@@ -450,7 +451,7 @@ export default function Home() {
                         >
                           <div className="flex flex-col h-full">
                             <div className="relative h-[390px] overflow-hidden rounded-2xl border-2 border-white/45 bg-white/10 shadow-[0_12px_30px_rgba(15,23,42,0.18)] sm:h-[400px]">
-                              <img src={getProjectImage(project)} alt={project.title} className="w-full h-full object-cover" />
+                              <img src={getProjectImage(project)} alt={project.title} loading={i === currentIdx ? "eager" : "lazy"} decoding="async" className="w-full h-full object-cover" />
                               <div
                                 className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0F172A]/55 via-[#0F172A]/5 to-transparent"
                                 aria-hidden="true"

@@ -28,6 +28,7 @@ const FROM         = `"${FROM_NAME}" <${FROM_ADDRESS}>`;
 
 /* Admin recipient ─────────────────────────────────────────────────── */
 const ADMIN_EMAIL  = process.env.ADMIN_EMAIL  || process.env.SMTP_USER || "";
+const WEBSITE_URL = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
 /* ── Internal helper ─────────────────────────────────────────────── */
 
@@ -139,4 +140,51 @@ export async function sendEnquiryEmails(enquiry) {
   }
 
   return { userEmail, adminEmail };
+}
+
+export async function sendPasswordResetEmail(user, token) {
+  const resetUrl = `${WEBSITE_URL.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(token)}`;
+  return _send({
+    from: FROM,
+    to: user.email,
+    subject: "Reset your Swapnapurti Associates password",
+    text: `Use this link to reset your password: ${resetUrl}\n\nThis link expires in 30 minutes.`,
+    html: `<p>We received a request to reset your password.</p><p><a href="${resetUrl}">Reset your password</a></p><p>This link expires in 30 minutes.</p>`,
+  });
+}
+
+export async function sendVerificationCode({ user, code, channel }) {
+  const subject = "Your Swapnapurti Associates verification code";
+  const text = `Your verification code is ${code}. It expires in 10 minutes.`;
+
+  if (channel === "email") {
+    return _send({
+      from: FROM,
+      to: user.email,
+      subject,
+      text,
+      html: `<p>Your Swapnapurti Associates verification code is:</p><p style="font-size:28px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes.</p>`,
+    });
+  }
+
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_PHONE_NUMBER;
+  if (!sid || !authToken || !from) {
+    if (process.env.NODE_ENV === "production") {
+      return { success: false, error: new Error("SMS verification is not configured") };
+    }
+    console.log(`[sms/DEV-STUB] Verification code for ${user.phone}: ${code}`);
+    return { success: true, messageId: `dev-sms-${Date.now()}` };
+  }
+
+  const body = new URLSearchParams({ To: `${user.countryCode || "+91"}${user.phone}`, From: from, Body: text });
+  const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+    method: "POST",
+    headers: { Authorization: `Basic ${Buffer.from(`${sid}:${authToken}`).toString("base64")}`, "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!response.ok) return { success: false, error: new Error("SMS provider rejected the verification message") };
+  const data = await response.json();
+  return { success: true, messageId: data.sid };
 }

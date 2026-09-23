@@ -1,4 +1,5 @@
-import { DashboardShell, useDashboardGuard } from "@/components/dashboard/DashboardShell";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { useDashboardGuard } from "@/hooks/use-dashboard-guard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

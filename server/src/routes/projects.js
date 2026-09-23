@@ -70,7 +70,9 @@ router.get("/", requireAuth, async (req, res) => {
  * Admin/CEO only: create a new project.
  */
 router.post("/", requireAuth, requireRole("admin", "ceo"), async (req, res) => {
-  const project = await Project.create({ ...req.body, createdBy: req.user._id });
+  const allowed = ["title", "category", "description", "city", "state", "location", "status", "clientName", "customer", "projectValue", "completionYear", "progress", "tags", "imageUrl", "areaCovered", "keyFeatures", "startDate", "completionDate", "featured", "assignedEngineers"];
+  const data = Object.fromEntries(allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]));
+  const project = await Project.create({ ...data, createdBy: req.user._id });
 
   // Real-time: notify everyone in the admin/ceo/engineer rooms
   const io = req.app.get("io");
@@ -95,7 +97,12 @@ router.patch("/:id", requireAuth, async (req, res) => {
     return res.status(403).json({ message: "Forbidden" });
   }
 
-  Object.assign(project, req.body);
+  const allowedFields = req.user.role === "engineer"
+    ? ["progress", "status", "description", "keyFeatures", "imageUrl"]
+    : ["title", "category", "description", "city", "state", "location", "status", "clientName", "customer", "projectValue", "completionYear", "progress", "tags", "imageUrl", "areaCovered", "keyFeatures", "startDate", "completionDate", "featured", "assignedEngineers"];
+  for (const field of allowedFields) {
+    if (req.body[field] !== undefined) project[field] = req.body[field];
+  }
   await project.save();
 
   const io = req.app.get("io");

@@ -1,8 +1,12 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET must be configured before the server starts");
+}
 
 // Inactivity timeout: session is invalidated if no authenticated request
 // is made within this window.

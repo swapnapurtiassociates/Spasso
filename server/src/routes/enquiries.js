@@ -5,6 +5,7 @@ import { User } from "../models/User.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validateEmail, validateEnquiryPhone } from "../utils/validation.js";
 import { sendEnquiryEmails } from "../utils/email/emailService.js";
+import { rateLimit } from "../middleware/rate-limit.js";
 
 const router = Router();
 
@@ -66,7 +67,7 @@ function validateEnquiryPayload(body = {}) {
  * Public endpoint — anyone can submit a project enquiry, no auth required.
  * Frontend flow: Validation -> API Call -> Controller -> MongoDB Save -> Response.
  */
-router.post("/", async (req, res) => {
+router.post("/", rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: "Too many enquiries from this address. Please try again later." }), async (req, res) => {
   try {
     const { errors, value } = validateEnquiryPayload(req.body);
     if (Object.keys(errors).length > 0) {

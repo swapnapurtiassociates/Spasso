@@ -1,4 +1,5 @@
-import { DashboardShell, StatCard, useDashboardGuard } from "@/components/dashboard/DashboardShell";
+import { DashboardShell, StatCard } from "@/components/dashboard/DashboardShell";
+import { useDashboardGuard } from "@/hooks/use-dashboard-guard";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useProjects } from "@/hooks/use-projects";
 

@@ -27,7 +27,7 @@ router.get("/:userId", requireAuth, async (req, res) => {
  */
 router.post("/", requireAuth, async (req, res) => {
   const { receiver, text, project } = req.body;
-  if (!receiver || !text) {
+  if (!receiver || !text || typeof text !== "string" || text.trim().length > 5000) {
     return res.status(400).json({ message: "receiver and text are required" });
   }
 

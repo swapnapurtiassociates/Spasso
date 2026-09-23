@@ -15,7 +15,7 @@ function parseCookie(cookieHeader = "", name) {
 }
 
 export function initSocket(httpServer, app) {
-  const allowedOrigins = (process.env.CLIENT_ORIGIN || "*")
+  const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
     .split(",")
     .map((o) => o.trim());
 
@@ -39,6 +39,8 @@ export function initSocket(httpServer, app) {
       const payload = verifyToken(token);
       const user = await User.findById(payload.sub);
       if (!user || !user.isActive) return next(new Error("Unauthorized"));
+      if (!payload.sid || !user.activeSessionId || payload.sid !== user.activeSessionId) return next(new Error("Unauthorized"));
+      if (user.lastActivity && Date.now() - new Date(user.lastActivity).getTime() > 30 * 60 * 1000) return next(new Error("Unauthorized"));
 
       socket.user = user;
       next();

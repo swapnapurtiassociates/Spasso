@@ -30,7 +30,7 @@ import userRoutes from "./routes/users.js";
 const app = express();
 const httpServer = createServer(app);
 
-const allowedOrigins = (process.env.CLIENT_ORIGIN || "*")
+const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
   .split(",")
   .map((o) => o.trim());
 
@@ -40,8 +40,20 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
+app.disable("x-powered-by");
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const isMutation = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method);
+  if (origin && isMutation && !allowedOrigins.includes(origin)) {
+    return res.status(403).json({ message: "Origin not allowed" });
+  }
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  next();
+});
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });

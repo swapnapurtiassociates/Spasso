@@ -52,6 +52,7 @@ Set these Vercel environment variables for Production (and Preview if needed):
 - `STAFF_ACCESS_CODE`
 - `CLIENT_ORIGIN` (your Vercel URL, for example `https://your-site.vercel.app`)
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and `SMTP_SECURE` if email is required
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_PHONE_NUMBER` for SMS verification
 
 Leave `VITE_API_URL` unset when the API is deployed with this project; the
 frontend will use the same Vercel origin automatically. Socket.IO does not run
@@ -61,15 +62,19 @@ enquiries continue to work on Vercel.
 
 ## 3. How login works
 
-- **`/login`** — public page with Customer / Engineer / Admin tabs. Engineers
-  and Admins who sign up need a `STAFF_ACCESS_CODE`.
-- **`/signup`** — same role tabs; choose a role and (for Engineer/Admin) enter
-  the staff access code from `.env`.
+- **`/login`** — public page with Customer / Admin tabs. The user chooses email
+  or phone delivery, validates credentials, and then enters a six-digit code.
+- **`/signup`** — customer-only self-registration. The user chooses email or
+  phone verification before the account session is created.
 - **`/portal-x9`** — hidden CEO-only login. Not linked anywhere in the UI
   (there's only a tiny shield icon under the login card). Requires email,
   password, **and** the `CEO_ACCESS_CODE` from `.env`. CEO accounts cannot be
   created via signup — they must be inserted directly (e.g. via the seed
   script or MongoDB).
+
+Verification codes expire after 10 minutes, allow five incorrect attempts, and
+are stored only as hashes. Configure Twilio for real SMS delivery. Without
+Twilio, non-production environments use a development-only console stub.
 
 After login, users are redirected to their role dashboard:
 - `/dashboard/customer`

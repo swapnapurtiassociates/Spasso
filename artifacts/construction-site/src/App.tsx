@@ -9,6 +9,7 @@ import CeoPortal from "@/pages/ceo-portal";
 import Contact from "@/pages/contact";
 import AdminDashboard from "@/pages/dashboard/admin";
 import AdminEnquiries from "@/pages/dashboard/admin-enquiries";
+import NotificationsPage from "@/pages/dashboard/notifications";
 import CeoDashboard from "@/pages/dashboard/ceo";
 import CustomerDashboard from "@/pages/dashboard/customer";
 import EngineerDashboard from "@/pages/dashboard/engineer";
@@ -20,15 +21,11 @@ import ProjectDetail from "@/pages/project-detail";
 import Projects from "@/pages/projects";
 import Services from "@/pages/services";
 import Signup from "@/pages/signup";
+import ResetPassword from "@/pages/reset-password";
+import { useAuth } from "@workspace/replit-auth-web";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
-
-// Mock useAuth hook - replace with actual auth implementation
-const useAuth = () => ({
-  isAuthenticated: false,
-  logout: () => {},
-});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,11 +51,13 @@ function Router() {
         <Route path="/login" component={Login} />
         <Route path="/signup" component={Signup} />
         <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
         <Route path="/portal-x9" component={CeoPortal} />
         <Route path="/dashboard/customer" component={CustomerDashboard} />
         <Route path="/dashboard/engineer" component={EngineerDashboard} />
         <Route path="/dashboard/admin" component={AdminDashboard} />
         <Route path="/dashboard/admin/enquiries" component={AdminEnquiries} />
+        <Route path="/dashboard/notifications" component={NotificationsPage} />
         <Route path="/dashboard/ceo" component={CeoDashboard} />
         <Route component={NotFound} />
       </Switch>

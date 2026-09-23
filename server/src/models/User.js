@@ -65,6 +65,15 @@ const userSchema = new Schema(
     // session token is considered valid. Logging in elsewhere invalidates
     // any previous session for this account.
     activeSessionId: { type: String, default: null },
+
+    resetPasswordTokenHash: { type: String, default: null, select: false },
+    resetPasswordExpiresAt: { type: Date, default: null, select: false },
+
+    verificationCodeHash: { type: String, default: null, select: false },
+    verificationChallengeHash: { type: String, default: null, select: false },
+    verificationCodeExpiresAt: { type: Date, default: null, select: false },
+    verificationAttempts: { type: Number, default: 0, select: false },
+    verificationChannel: { type: String, enum: ["email", "phone", null], default: null, select: false },
   },
   { timestamps: true }
 );

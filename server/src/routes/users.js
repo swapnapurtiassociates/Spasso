@@ -10,7 +10,7 @@ const router = Router();
  */
 router.get("/engineers", async (req, res) => {
   const engineers = await User.find({ role: "engineer", isActive: true }).select(
-    "firstName lastName email phone city state country specialization skills experience available profileImageUrl"
+    "firstName lastName city state country specialization skills experience available profileImageUrl"
   );
   res.json({ engineers });
 });

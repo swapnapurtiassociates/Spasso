@@ -1,41 +1,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Menu, X } from "lucide-react";
+import { dashboardPathForRole, useAuth, type AuthUser } from "@workspace/replit-auth-web";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-type AuthUser = {
-  firstName?: string;
-  profileImageUrl?: string;
-  role?: string;
-};
-
-type AuthState = {
-  user?: AuthUser;
-  isAuthenticated: boolean;
-  login: () => void;
-  logout: () => void;
-};
-
-function dashboardPathForRole(role?: string) {
-  if (!role || role === "customer") return "/dashboard";
-  return `/${role}/dashboard`;
-}
-
-function useAuth(): AuthState {
-  return {
-    user: undefined,
-    isAuthenticated: false,
-    login: () => undefined,
-    logout: () => undefined,
-  };
-}
 
 export function Navbar() {
   const [location] = useLocation();
-  const { user, isAuthenticated, login, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -44,6 +20,7 @@ export function Navbar() {
   }, []);
 
   const links = [
+    { href: "/", label: "Home" },
     { href: "/projects", label: "Projects" },
     { href: "/services", label: "Services" },
     { href: "/careers", label: "Careers" },
@@ -68,7 +45,7 @@ export function Navbar() {
               <img
                 src="/images/logo.png"
                 alt="Swapnapurti Associates Logo"
-                className="h-14 w-auto max-w-[200px] md:h-16 md:max-w-[220px] object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+                className="h-14 w-auto max-w-[200px] md:h-16 md:max-w-[220px] object-contain drop-shadow-md saturate-150 brightness-125 contrast-110 transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           </Link>
@@ -80,7 +57,7 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`relative text-sm font-medium tracking-wide uppercase transition-colors duration-300 group ${
-                  location.startsWith(link.href)
+                  (link.href === "/" ? location === "/" : location.startsWith(link.href))
                     ? scrolled || !isHome
                       ? "text-[#1E3A8A]"
                       : "text-white"
@@ -92,7 +69,7 @@ export function Navbar() {
                 {link.label}
                 <span
                   className={`absolute -bottom-1 left-0 h-0.5 bg-[#2563EB] transition-all duration-300 ${
-                    location.startsWith(link.href) ? "w-full" : "w-0 group-hover:w-full"
+                    (link.href === "/" ? location === "/" : location.startsWith(link.href)) ? "w-full" : "w-0 group-hover:w-full"
                   }`}
                 />
               </Link>
@@ -102,22 +79,7 @@ export function Navbar() {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8 rounded-lg border border-white/20">
-                    <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
-                    <AvatarFallback className="rounded-lg bg-[#1E3A8A] text-white text-xs">
-                      {user?.firstName?.charAt(0) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span
-                    className={`text-sm font-medium transition-colors ${
-                      scrolled || !isHome ? "text-[#0F172A]" : "text-white"
-                    }`}
-                  >
-                    {user?.firstName}
-                  </span>
-                </div>
+              <div className="relative flex items-center gap-3">
                 <Link href={dashboardPathForRole(user?.role ?? "customer")}>
                   <Button
                     variant="outline"
@@ -127,26 +89,30 @@ export function Navbar() {
                     Dashboard
                   </Button>
                 </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={logout}
-                  className={`text-xs uppercase tracking-wider ${
-                    scrolled || !isHome ? "text-[#374151]" : "text-white/80 hover:text-white"
-                  }`}
-                >
-                  Sign Out
-                </Button>
+                <button type="button" onClick={() => setProfileOpen((open) => !open)} className="flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-black/5" aria-expanded={profileOpen} aria-label="Open profile menu">
+                  <Avatar className="h-9 w-9 rounded-lg border border-white/20">
+                    <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
+                    <AvatarFallback className="rounded-lg bg-[#1E3A8A] text-white text-xs">{user?.firstName?.charAt(0) || "U"}</AvatarFallback>
+                  </Avatar>
+                  <span className={`hidden lg:block text-sm font-medium ${scrolled || !isHome ? "text-[#0F172A]" : "text-white"}`}>{user?.firstName}</span>
+                  <ChevronDown size={15} className={scrolled || !isHome ? "text-[#374151]" : "text-white"} />
+                </button>
+                {profileOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl">
+                    <div className="border-b border-border px-3 py-2">
+                      <p className="text-sm font-semibold">{user?.firstName} {user?.lastName}</p>
+                      <p className="text-xs capitalize text-muted-foreground">{user?.role}</p>
+                    </div>
+                    <Link href="/dashboard/notifications" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted"><Bell size={16} /> Notifications</Link>
+                    <button type="button" onClick={() => { setProfileOpen(false); logout(); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-muted"><LogOut size={16} /> Sign Out</button>
+                  </div>
+                )}
               </div>
             ) : (
-              <Link href="/contact">
-                <Button
-                  size="sm"
-                  className="rounded-lg bg-[#1E3A8A] hover:bg-[#2563EB] text-white text-xs uppercase tracking-wider px-5 shadow-lg shadow-[#1E3A8A]/20 transition-all duration-300"
-                >
-                  Get a Quote
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/login"><Button variant="outline" size="sm" className="rounded-lg border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white text-xs uppercase tracking-wider">Sign In</Button></Link>
+                <Link href="/signup"><Button size="sm" className="rounded-lg bg-[#1E3A8A] hover:bg-[#2563EB] text-white text-xs uppercase tracking-wider px-5 shadow-lg shadow-[#1E3A8A]/20 transition-all duration-300">Sign Up</Button></Link>
+              </div>
             )}
           </div>
 
@@ -182,7 +148,7 @@ export function Navbar() {
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`text-base font-medium uppercase tracking-widest transition-colors ${
-                    location.startsWith(link.href)
+                    (link.href === "/" ? location === "/" : location.startsWith(link.href))
                       ? "text-[#1E3A8A]"
                       : "text-[#374151]"
                   }`}
@@ -193,15 +159,11 @@ export function Navbar() {
               <div className="pt-4 border-t border-gray-100 flex flex-col gap-3">
                 {isAuthenticated ? (
                   <>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 rounded-lg">
-                        <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
-                        <AvatarFallback className="rounded-lg bg-[#1E3A8A] text-white">
-                          {user?.firstName?.charAt(0) || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium text-[#0F172A]">{user?.firstName}</span>
-                    </div>
+                    <button type="button" onClick={() => setProfileOpen((open) => !open)} className="flex items-center gap-3 text-left">
+                      <Avatar className="h-10 w-10 rounded-lg"><AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} /><AvatarFallback className="rounded-lg bg-[#1E3A8A] text-white">{user?.firstName?.charAt(0) || "U"}</AvatarFallback></Avatar>
+                      <span className="font-medium text-[#0F172A]">{user?.firstName}</span><ChevronDown size={15} />
+                    </button>
+                    {profileOpen && <div className="rounded-xl border border-border bg-popover p-2 shadow-lg"><Link href="/dashboard/notifications" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"><Bell size={16} /> Notifications</Link><button type="button" onClick={() => { logout(); setIsMobileMenuOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-destructive"><LogOut size={16} /> Sign Out</button></div>}
                     <Link
                       href={dashboardPathForRole(user?.role ?? "customer")}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -210,23 +172,12 @@ export function Navbar() {
                         Dashboard
                       </Button>
                     </Link>
-                    <Button
-                      variant="outline"
-                      className="w-full rounded-lg uppercase tracking-wider"
-                      onClick={() => {
-                        logout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      Sign Out
-                    </Button>
                   </>
                 ) : (
-                  <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-[#1E3A8A] hover:bg-[#2563EB] text-white rounded-lg uppercase tracking-wider">
-                      Get a Quote
-                    </Button>
-                  </Link>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}><Button variant="outline" className="w-full rounded-lg border-[#1E3A8A] text-[#1E3A8A] uppercase tracking-wider">Sign In</Button></Link>
+                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}><Button className="w-full bg-[#1E3A8A] hover:bg-[#2563EB] text-white rounded-lg uppercase tracking-wider">Sign Up</Button></Link>
+                  </div>
                 )}
               </div>
             </div>

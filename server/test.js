@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
 
-const uri =
-  "mongodb+srv://REQ:ozO7O7wARsarzuhn@cluster0.lvfpel0.mongodb.net/swapnapurti?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+  console.error("MONGODB_URI is required");
+  process.exit(1);
+}
 
 console.log("Connecting...");
 

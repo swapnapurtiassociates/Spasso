@@ -44,3 +44,11 @@ if (missing.length > 0) {
 } else {
   console.log("[env] ✅ All critical environment variables loaded");
 }
+
+if (process.env.NODE_ENV === "production") {
+  const required = ["MONGODB_URI", "JWT_SECRET", "CEO_ACCESS_CODE", "STAFF_ACCESS_CODE", "CLIENT_ORIGIN"];
+  const missingProduction = required.filter((v) => !process.env[v]);
+  if (missingProduction.length > 0) {
+    throw new Error(`Missing required production environment variables: ${missingProduction.join(", ")}`);
+  }
+}

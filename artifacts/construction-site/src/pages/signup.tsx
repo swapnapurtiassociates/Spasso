@@ -4,14 +4,12 @@ import { AuthBackground } from "@/components/auth/AuthBackground";
 import { dashboardPathForRole, useAuth } from "@workspace/replit-auth-web";
 import { validatePassword, validatePhone, COUNTRY_CODES } from "@/lib/validation";
 import { motion } from "framer-motion";
-import { Briefcase, HardHat, User, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
+import { Mail, Phone, User, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
 const ROLES = [
   { id: "customer", label: "Customer", icon: User },
-  { id: "engineer", label: "Engineer", icon: HardHat },
-  { id: "admin", label: "Admin", icon: Briefcase },
 ] as const;
 
 type RoleId = (typeof ROLES)[number]["id"];
@@ -37,8 +35,11 @@ function PasswordStrengthHint({ password }: { password: string }) {
 
 export default function Signup() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, user, signup, isLoading } = useAuth();
+  const { isAuthenticated, user, signup, verifyCode, resendCode, isLoading } = useAuth();
   const [role, setRole] = useState<RoleId>("customer");
+  const [channel, setChannel] = useState<"email" | "phone">("email");
+  const [challenge, setChallenge] = useState<{ challenge: string; channel: "email" | "phone"; destination: string } | null>(null);
+  const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [formData, setFormData] = useState({
@@ -92,9 +93,6 @@ export default function Signup() {
     else if (formData.password !== formData.confirmPassword)
       newErrors.confirmPassword = "Passwords do not match";
 
-    if ((role === "engineer" || role === "admin") && !formData.staffAccessCode)
-      newErrors.staffAccessCode = "Staff access code is required for this role";
-
     return newErrors;
   };
 
@@ -115,8 +113,7 @@ export default function Signup() {
       countryCode: formData.countryCode,
       password: formData.password,
       role,
-      staffAccessCode: formData.staffAccessCode || undefined,
-      specialization: role === "engineer" ? formData.specialization : undefined,
+      channel,
     } as any);
     setSubmitting(false);
 
@@ -125,15 +122,26 @@ export default function Signup() {
       return;
     }
 
-    // After successful signup, go directly to home page
+    if (result.verification) {
+      setChallenge(result.verification);
+      return;
+    }
+    setLocation("/");
+  };
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!challenge) return;
+    const result = await verifyCode(challenge.challenge, code);
+    if (!result.success) return setGlobalError(result.message || "Invalid verification code");
     setLocation("/");
   };
 
   if (isLoading || isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f7f2e8]">
-        <div className="h-12 w-12 bg-[#b88f34] rounded-sm animate-pulse flex items-center justify-center">
-          <span className="text-white font-serif font-bold text-2xl">S</span>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-12 w-12 bg-primary rounded-lg animate-pulse flex items-center justify-center">
+          <span className="text-primary-foreground font-serif font-bold text-2xl">S</span>
         </div>
       </div>
     );
@@ -148,28 +156,28 @@ export default function Signup() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-white/90 backdrop-blur-md border border-[#e8dcc6] p-8 md:p-10 rounded-4xl shadow-[0_30px_80px_rgba(0,0,0,0.12)]"
+          className="bg-card/95 backdrop-blur-md border border-border p-8 md:p-10 rounded-2xl shadow-xl"
         >
           <div className="flex justify-center mb-6">
-            <div className="h-12 w-12 bg-[#b88f34] rounded-sm flex items-center justify-center shadow-lg">
-              <span className="text-white font-serif font-bold text-3xl">S</span>
+            <div className="h-12 w-12 bg-primary rounded-lg flex items-center justify-center shadow-lg">
+              <span className="text-primary-foreground font-serif font-bold text-3xl">S</span>
             </div>
           </div>
 
           <div className="text-center mb-6">
-            <h2 className="text-3xl font-serif font-bold tracking-tight mb-1 text-[#1c1a16]">Create Account</h2>
-            <p className="text-[#4e473d] text-sm">Join Swapnapurti Associates today</p>
+            <h2 className="text-3xl font-serif font-bold tracking-tight mb-1 text-foreground">{challenge ? "Verify your account" : "Create Account"}</h2>
+            <p className="text-muted-foreground text-sm">{challenge ? `Enter the code sent to ${challenge.destination}` : "Join Swapnapurti Associates today"}</p>
           </div>
 
           {/* Role Tabs */}
-          <div className="grid grid-cols-3 gap-2 mb-6 bg-[#f7f2e8] p-1 rounded-full">
+          <div className="grid grid-cols-1 gap-2 mb-6 bg-muted p-1 rounded-xl">
             {ROLES.map((r) => {
               const Icon = r.icon;
               return (
                 <button key={r.id} type="button"
                   onClick={() => { setRole(r.id); setGlobalError(""); setErrors({}); }}
                   className={`flex flex-col items-center gap-1 py-2 px-2 rounded-full text-xs font-semibold transition-colors ${
-                    role === r.id ? "bg-[#b88f34] text-white" : "text-[#4e473d] hover:text-[#1c1a16]"
+                    role === r.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}>
                   <Icon size={16} />
                   {r.label}
@@ -178,7 +186,12 @@ export default function Signup() {
             })}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          {challenge ? <form onSubmit={handleVerify} className="space-y-4">
+            <Input inputMode="numeric" maxLength={6} value={code} onChange={(e) => { setCode(e.target.value.replace(/\D/g, "")); setGlobalError(""); }} placeholder="6-digit verification code" className="bg-background border-border text-foreground rounded-lg h-12 text-center tracking-[0.4em]" autoFocus />
+            {globalError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{globalError}</div>}
+            <Button type="submit" className="w-full h-12 rounded-lg text-base uppercase tracking-widest font-bold">Verify and Continue</Button>
+            <button type="button" onClick={async () => { const result = await resendCode(challenge.challenge, challenge.channel); if (result.verification) setChallenge(result.verification); else setGlobalError(result.message || "Unable to resend code"); }} className="w-full text-sm text-[#b88f34] hover:underline">Resend verification code</button>
+          </form> : <form onSubmit={handleSubmit} className="space-y-3">
             {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -203,11 +216,19 @@ export default function Signup() {
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
 
+            <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
+              {(["email", "phone"] as const).map((option) => (
+                <button key={option} type="button" onClick={() => setChannel(option)} className={`flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold uppercase tracking-wider ${channel === option ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+                  {option === "email" ? <Mail size={14} /> : <Phone size={14} />}{option} verification
+                </button>
+              ))}
+            </div>
+
             {/* Phone with country code */}
             <div>
               <div className="flex gap-2">
                 <select name="countryCode" value={formData.countryCode} onChange={handleChange}
-                  className="bg-white border border-[#e8dcc6] rounded-lg h-11 px-2 text-sm text-[#1c1a16] focus:outline-none focus:border-[#b88f34] shrink-0 w-36">
+                  className="bg-background border-border rounded-lg h-11 px-2 text-sm text-foreground focus:outline-none focus:border-primary shrink-0 w-36">
                   {COUNTRY_CODES.map((c) => (
                     <option key={c.code} value={c.code}>{c.label}</option>
                   ))}
@@ -223,13 +244,6 @@ export default function Signup() {
                 : <p className="text-[#a89f8f] text-xs mt-1">{formData.phone.length}/10 digits</p>}
             </div>
 
-            {/* Specialization for engineer */}
-            {role === "engineer" && (
-              <Input name="specialization" placeholder="Specialization (e.g. Structural, MEP)"
-                value={formData.specialization} onChange={handleChange}
-                className="bg-white border border-[#e8dcc6] h-11 rounded-lg focus:border-[#b88f34]" />
-            )}
-
             {/* Password */}
             <div>
               <div className="relative">
@@ -239,7 +253,8 @@ export default function Signup() {
                   className={`bg-white border h-11 rounded-lg pr-10 focus:border-[#b88f34] ${errors.password ? "border-red-400" : "border-[#e8dcc6]"}`} />
                 <button type="button" tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a89f8f]">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a89f8f]"
+                  aria-label={showPassword ? "Hide password" : "Show password"}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -257,22 +272,13 @@ export default function Signup() {
                   className={`bg-white border h-11 rounded-lg pr-10 focus:border-[#b88f34] ${errors.confirmPassword ? "border-red-400" : "border-[#e8dcc6]"}`} />
                 <button type="button" tabIndex={-1}
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a89f8f]">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a89f8f]"
+                  aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}>
                   {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
             </div>
-
-            {/* Staff access code */}
-            {(role === "engineer" || role === "admin") && (
-              <div>
-                <Input type="password" name="staffAccessCode" placeholder="Staff Access Code"
-                  value={formData.staffAccessCode} onChange={handleChange}
-                  className={`bg-white border h-11 rounded-lg focus:border-[#b88f34] ${errors.staffAccessCode ? "border-red-400" : "border-[#e8dcc6]"}`} />
-                {errors.staffAccessCode && <p className="text-red-500 text-xs mt-1">{errors.staffAccessCode}</p>}
-              </div>
-            )}
 
             {globalError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -281,15 +287,15 @@ export default function Signup() {
             )}
 
             <Button type="submit" disabled={submitting}
-              className="w-full h-12 rounded-full text-base uppercase tracking-widest font-bold bg-[#b88f34] hover:bg-[#a6792b] text-white transition-colors mt-2">
+              className="w-full h-12 rounded-lg text-base uppercase tracking-widest font-bold transition-colors mt-2">
               {submitting ? "Creating Account..." : "Sign Up"}
             </Button>
-          </form>
+          </form>}
 
-          <div className="mt-6 text-center border-t border-[#e8dcc6] pt-5">
-            <p className="text-sm text-[#4e473d]">
+          <div className="mt-6 text-center border-t border-border pt-5">
+            <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <a href="/login" className="font-semibold text-[#b88f34] hover:text-[#a6792b] transition-colors">
+              <a href="/login" className="font-semibold text-primary hover:underline transition-colors">
                 Sign In
               </a>
             </p>

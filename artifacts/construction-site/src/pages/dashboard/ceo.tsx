@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { DashboardShell, StatCard, useDashboardGuard } from "@/components/dashboard/DashboardShell";
+import { DashboardShell, StatCard } from "@/components/dashboard/DashboardShell";
+import { useDashboardGuard } from "@/hooks/use-dashboard-guard";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useProjects } from "@/hooks/use-projects";
 import { API_BASE_URL } from "@workspace/replit-auth-web";

@@ -9,6 +9,7 @@ export type AuthUser = {
   lastName: string;
   email: string;
   phone?: string;
+  countryCode?: string;
   role: UserRole;
   profileImageUrl?: string;
   city?: string;
@@ -30,6 +31,7 @@ export type SignupData = {
   lastName: string;
   email: string;
   phone?: string;
+  countryCode?: string;
   password: string;
   role?: "customer" | "engineer" | "admin";
   staffAccessCode?: string;
@@ -39,7 +41,8 @@ export type SignupData = {
   state?: string;
 };
 
-export type LoginResult = { success: boolean; message?: string; user?: AuthUser };
+export type VerificationChallenge = { challenge: string; channel: "email" | "phone"; destination: string };
+export type LoginResult = { success: boolean; message?: string; user?: AuthUser; verification?: VerificationChallenge };
 
 export type UseAuthResult = {
   user: AuthUser | null;
@@ -48,9 +51,11 @@ export type UseAuthResult = {
   login: () => void;
   logout: () => void;
   refresh: () => Promise<void>;
-  loginWithEmail: (email: string, password: string) => Promise<LoginResult>;
-  ceoLogin: (email: string, password: string, accessCode: string) => Promise<LoginResult>;
-  signup: (data: SignupData) => Promise<LoginResult>;
+  loginWithEmail: (identifier: string, password: string, role?: string, channel?: "email" | "phone") => Promise<LoginResult>;
+  ceoLogin: (email: string, password: string, accessCode: string, channel?: "email" | "phone") => Promise<LoginResult>;
+  signup: (data: SignupData & { channel?: "email" | "phone" }) => Promise<LoginResult>;
+  verifyCode: (challenge: string, code: string) => Promise<LoginResult>;
+  resendCode: (challenge: string, channel: "email" | "phone") => Promise<LoginResult>;
 };
 
 /**
@@ -68,6 +73,10 @@ async function parseJsonSafe(response: Response) {
   } catch {
     return null;
   }
+}
+
+function notifyAuthChanged() {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("swapnapurti-auth-changed"));
 }
 
 export function useAuth(): UseAuthResult {
@@ -98,6 +107,8 @@ export function useAuth(): UseAuthResult {
 
   useEffect(() => {
     refresh();
+    window.addEventListener("swapnapurti-auth-changed", refresh);
+    return () => window.removeEventListener("swapnapurti-auth-changed", refresh);
   }, [refresh]);
 
   // Legacy no-op kept for compatibility with components that call login()
@@ -105,16 +116,19 @@ export function useAuth(): UseAuthResult {
     window.location.href = "/login";
   };
 
-  const loginWithEmail = async (email: string, password: string): Promise<LoginResult> => {
+  const loginWithEmail = async (identifier: string, password: string, role = "customer", channel: "email" | "phone" = "email"): Promise<LoginResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password, role, channel }),
       });
       const data = await parseJsonSafe(response);
+      if (response.ok && data?.requiresVerification) {
+        return { success: true, verification: data.verification };
+      }
       if (response.ok && data?.user) {
         setUser(data.user);
         setIsAuthenticated(true);
@@ -131,7 +145,8 @@ export function useAuth(): UseAuthResult {
   const ceoLogin = async (
     email: string,
     password: string,
-    accessCode: string
+    accessCode: string,
+    channel: "email" | "phone" = "email"
   ): Promise<LoginResult> => {
     setIsLoading(true);
     try {
@@ -139,9 +154,12 @@ export function useAuth(): UseAuthResult {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password, accessCode }),
+        body: JSON.stringify({ email, password, accessCode, channel }),
       });
       const data = await parseJsonSafe(response);
+      if (response.ok && data?.requiresVerification) {
+        return { success: true, verification: data.verification };
+      }
       if (response.ok && data?.user) {
         setUser(data.user);
         setIsAuthenticated(true);
@@ -165,6 +183,9 @@ export function useAuth(): UseAuthResult {
         body: JSON.stringify(data),
       });
       const result = await parseJsonSafe(response);
+      if (response.ok && result?.requiresVerification) {
+        return { success: true, verification: result.verification };
+      }
       if (response.ok && result?.user) {
         setUser(result.user);
         setIsAuthenticated(true);
@@ -178,6 +199,23 @@ export function useAuth(): UseAuthResult {
     }
   };
 
+  const verifyCode = async (challenge: string, code: string): Promise<LoginResult> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ challenge, code }) });
+      const data = await parseJsonSafe(response);
+      if (response.ok && data?.user) { setUser(data.user); setIsAuthenticated(true); notifyAuthChanged(); return { success: true, user: data.user }; }
+      return { success: false, message: data?.message || "Invalid verification code" };
+    } catch { return { success: false, message: "Network error. Please try again." }; }
+  };
+
+  const resendCode = async (challenge: string, channel: "email" | "phone"): Promise<LoginResult> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-verification`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ challenge, channel }) });
+      const data = await parseJsonSafe(response);
+      return response.ok ? { success: true, verification: data?.verification } : { success: false, message: data?.message || "Unable to resend code" };
+    } catch { return { success: false, message: "Network error. Please try again." }; }
+  };
+
   const logout = () => {
     setIsLoading(true);
     fetch(`${API_BASE_URL}/api/auth/logout`, {
@@ -186,6 +224,7 @@ export function useAuth(): UseAuthResult {
     }).finally(() => {
       setUser(null);
       setIsAuthenticated(false);
+      notifyAuthChanged();
       setIsLoading(false);
       window.location.href = "/";
     });
@@ -201,6 +240,8 @@ export function useAuth(): UseAuthResult {
     loginWithEmail,
     ceoLogin,
     signup,
+    verifyCode,
+    resendCode,
   };
 }
 

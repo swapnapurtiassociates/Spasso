@@ -50,7 +50,7 @@ export function AuthBackground({ images = DEFAULT_IMAGES, intervalMs = 2000, var
       </AnimatePresence>
 
       {/* Overlay so the form stays readable while images change */}
-      <div className={`absolute inset-0 ${variant === "dark" ? "bg-[#1c1a16]/85" : "bg-[#f7f2e8]/85"}`} />
+      <div className={`absolute inset-0 ${variant === "dark" ? "bg-[#0F172A]/90" : "bg-[#F8FAFC]/88"}`} />
     </div>
   );
 }
