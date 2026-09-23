@@ -4,9 +4,12 @@ import {
   Award,
   Building2,
   CheckCircle,
+  Compass,
   Layers,
   Leaf,
+  Route,
   Settings,
+  Sparkles,
   Wrench,
 } from "lucide-react";
 import { useRef } from "react";
@@ -146,21 +149,29 @@ const process = [
     step: "01",
     title: "Discovery",
     desc: "We understand your vision, requirements, and constraints in an in-depth consultation.",
+    icon: Compass,
+    accent: "from-[#0F172A] to-[#2563EB]",
   },
   {
     step: "02",
     title: "Design & Planning",
     desc: "Our architects and designers create detailed plans, 3D renders, and a phased schedule.",
+    icon: Sparkles,
+    accent: "from-[#1D4ED8] to-[#60A5FA]",
   },
   {
     step: "03",
     title: "Execution",
     desc: "Skilled teams with cutting-edge equipment bring the design to life on schedule.",
+    icon: Route,
+    accent: "from-[#1E3A8A] to-[#3B82F6]",
   },
   {
     step: "04",
     title: "Handover",
     desc: "Quality-checked delivery, documentation, and post-handover support included.",
+    icon: CheckCircle,
+    accent: "from-[#2563EB] to-[#93C5FD]",
   },
 ];
 
@@ -276,11 +287,16 @@ export default function Services() {
               delay={0.04}
               direction={index % 2 === 0 ? "left" : "right"}
             >
-              <div
-                className={`service-card group relative grid min-h-170 md:min-h-140 md:grid-cols-2 gap-0 overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)] hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(37,99,235,0.16)] hover:border-blue-500/30 transition-all duration-500 ${
+              <motion.div
+                whileHover={{ y: -8, scale: 1.01 }}
+                whileTap={{ scale: 0.995 }}
+                transition={{ type: "spring", stiffness: 220, damping: 18 }}
+                className={`service-card group relative grid min-h-170 md:min-h-140 md:grid-cols-2 gap-0 overflow-hidden rounded-[30px] border border-white/40 bg-white/30 shadow-[0_25px_80px_rgba(15,23,42,0.12)] backdrop-blur-xl hover:shadow-[0_35px_90px_rgba(37,99,235,0.18)] hover:border-blue-200/80 transition-all duration-500 ${
                   index % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
                 }`}
               >
+                <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.62),rgba(255,255,255,0.14),rgba(191,219,254,0.18))] opacity-100 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" />
+
                 {/* Image */}
                 <div className="service-image relative min-h-80 md:h-full md:min-h-0 overflow-hidden bg-slate-100">
                   <img
@@ -293,41 +309,40 @@ export default function Services() {
                     decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-linear-to-t from-slate-900/10 via-transparent to-transparent opacity-60 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-slate-900/5 to-transparent" />
                   
-                  {/* Premium Icon badge overlay */}
                   <div
-                    className="absolute top-6 left-6 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg border border-white/30 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110"
-                    style={{ backgroundColor: service.accent }}
+                    className="absolute top-6 left-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/40 shadow-[0_12px_28px_rgba(15,23,42,0.28)] backdrop-blur-md transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110"
+                    style={{ backgroundColor: `${service.accent}cc` }}
                   >
                     <service.icon className="h-6 w-6 text-white" />
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="relative flex h-full flex-col justify-center p-8 md:p-14 bg-white">
-                  <div className="absolute left-0 top-8 bottom-8 w-1 origin-top scale-y-0 bg-linear-to-b from-[#2563EB] to-[#60A5FA] transition-transform duration-500 group-hover:scale-y-100" />
-                  <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#2563EB] font-semibold mb-3">
+                <div className="relative flex h-full flex-col justify-center bg-white/20 p-8 md:p-14 backdrop-blur-sm">
+                  <div className="absolute bottom-8 left-8 top-8 w-1 origin-top scale-y-0 rounded-full bg-gradient-to-b from-[#2563EB] via-[#60A5FA] to-[#BFDBFE] transition-transform duration-500 group-hover:scale-y-100" />
+                  <span className="mb-3 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-[#1D4ED8]">
                     {service.subtitle}
                   </span>
-                  <h2 className="font-serif text-2xl md:text-4xl font-bold text-[#0F172A] mb-4 group-hover:text-[#2563EB] transition-colors duration-300">
+                  <h2 className="mb-4 font-serif text-2xl font-bold text-[#0F172A] transition-colors duration-300 group-hover:text-[#2563EB] md:text-4xl">
                     {service.title}
                   </h2>
-                  <p className="font-sans text-[#64748B] leading-relaxed mb-6 text-sm font-normal">
+                  <p className="mb-6 font-sans text-sm font-normal leading-relaxed text-slate-700">
                     {service.description}
                   </p>
 
-                  <ul className="space-y-3 mb-8">
+                  <ul className="mb-8 space-y-3">
                     {service.benefits.map((b) => (
-                      <li key={b} className="flex items-center gap-3 font-sans text-sm text-[#334155] transition-transform duration-300 group-hover:translate-x-1">
-                        <CheckCircle className="h-4 w-4 text-[#2563EB] shrink-0 transition-transform duration-300 group-hover:scale-110" />
+                      <li key={b} className="flex items-center gap-3 font-sans text-sm text-slate-700 transition-transform duration-300 group-hover:translate-x-1">
+                        <CheckCircle className="h-4 w-4 shrink-0 text-[#2563EB] transition-transform duration-300 group-hover:scale-110" />
                         {b}
                       </li>
                     ))}
                   </ul>
 
                   <Button
-                    className="group/btn relative self-start h-12 overflow-hidden rounded-xl border border-blue-400/30 bg-linear-to-r from-[#0F172A] via-[#1E3A8A] to-[#2563EB] px-6 text-white font-sans text-xs font-semibold uppercase tracking-wider shadow-[0_10px_25px_rgba(30,58,138,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(37,99,235,0.35)]"
+                    className="group/btn relative self-start h-12 overflow-hidden rounded-xl border border-blue-300/50 bg-gradient-to-r from-slate-900 via-[#1E3A8A] to-[#2563EB] px-6 text-white font-sans text-xs font-semibold uppercase tracking-wider shadow-[0_12px_30px_rgba(37,99,235,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(37,99,235,0.4)]"
                     asChild
                   >
                     <Link href="/contact">
@@ -337,50 +352,70 @@ export default function Services() {
                     </Link>
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             </FadeIn>
           ))}
         </div>
       </section>
 
       {/* ── Process Grid (Light Style) ──────────────────────────── */}
-      <section className="py-24 bg-white border-t border-slate-100 relative z-10">
-        <div className="container mx-auto px-4 md:px-8">
+      <section className="relative z-10 border-t border-slate-100 bg-white py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.07),transparent_55%)]" aria-hidden="true" />
+        <div className="container relative mx-auto px-4 md:px-8">
           <FadeIn>
-            <div className="text-center mb-20">
-              <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="mb-20 text-center">
+              <div className="mb-4 flex items-center justify-center gap-3">
                 <div className="h-px w-8 bg-[#2563EB]" />
                 <span className="font-sans text-xs font-semibold uppercase tracking-[0.25em] text-[#2563EB]">
                   How We Work
                 </span>
                 <div className="h-px w-8 bg-[#2563EB]" />
               </div>
-              <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#0F172A] tracking-tight">
+              <h2 className="font-serif text-4xl font-bold tracking-tight text-[#0F172A] md:text-5xl">
                 Our Process
               </h2>
             </div>
           </FadeIn>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {process.map((p, i) => (
-              <FadeIn key={p.step} delay={i * 0.1}>
-                <div className="process-card relative p-8 bg-[#F8FAFC] border border-slate-200/60 rounded-2xl shadow-sm hover:-translate-y-1 hover:border-blue-300/70 hover:shadow-[0_16px_35px_rgba(37,99,235,0.12)] transition-all duration-300 group">
-                  {/* Architectural linking lines */}
-                  {i < process.length - 1 && (
-                    <div className="hidden lg:block absolute top-12 right-0 translate-x-1/2 w-6 h-px bg-slate-200 z-10" />
-                  )}
-                  <div className="font-serif text-5xl font-bold text-slate-200 group-hover:text-blue-500/10 mb-4 transition-colors duration-300">
-                    {p.step}
-                  </div>
-                  <h3 className="font-serif text-xl font-semibold text-[#0F172A] mb-3">
-                    {p.title}
-                  </h3>
-                  <p className="font-sans text-sm text-[#64748B] leading-relaxed font-normal">
-                    {p.desc}
-                  </p>
-                </div>
-              </FadeIn>
-            ))}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {process.map((p, i) => {
+              const Icon = p.icon;
+
+              return (
+                <FadeIn key={p.step} delay={i * 0.1}>
+                  <motion.div
+                    whileHover={{ y: -10, rotateX: 2, rotateY: -2 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 18 }}
+                    className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-white/50 bg-white/30 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-all duration-300 hover:border-blue-200/80 hover:shadow-[0_25px_60px_rgba(59,130,246,0.15)]"
+                  >
+                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.54),rgba(191,219,254,0.12),rgba(255,255,255,0.08))]" aria-hidden="true" />
+                    {i < process.length - 1 && (
+                      <div className="hidden lg:block absolute right-[-18px] top-16 h-px w-9 bg-gradient-to-r from-slate-300 to-blue-200" />
+                    )}
+
+                    <div className="relative mb-5 flex items-center justify-between">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${p.accent} text-white shadow-lg shadow-blue-500/20`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span className="font-serif text-5xl font-bold tracking-tight text-slate-200/90 transition-colors duration-300 group-hover:text-blue-100/80">
+                        {p.step}
+                      </span>
+                    </div>
+
+                    <div className="relative mb-4 h-1 w-16 rounded-full bg-gradient-to-r from-[#0F172A] via-[#2563EB] to-[#93C5FD]" />
+
+                    <h3 className="relative mb-3 font-serif text-2xl font-semibold text-[#0F172A]">
+                      {p.title}
+                    </h3>
+                    <p className="relative font-sans text-sm font-normal leading-relaxed text-slate-700">
+                      {p.desc}
+                    </p>
+
+                    <div className="relative mt-6 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
+                  </motion.div>
+                </FadeIn>
+              );
+            })}
           </div>
         </div>
       </section>
