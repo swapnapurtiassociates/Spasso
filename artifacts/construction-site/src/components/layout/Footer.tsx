@@ -2,6 +2,40 @@ import { motion } from "framer-motion";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "wouter";
 
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="4.1" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+      <path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.5c0-.9.3-1.5 1.5-1.5H16V2.9c-.5-.1-1.3-.2-2.4-.2-2.5 0-4.2 1.4-4.2 4.2V9.9H7v3.1h2.4v8h4.1Z" />
+    </svg>
+  );
+}
+
+function LinkedInIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+      <path d="M6.94 8.5A1.56 1.56 0 1 1 6.9 5.4a1.56 1.56 0 0 1 .04 3.1ZM5.3 9.9h3.3V18H5.3V9.9Zm5.3 0h3.2v1.1h.1c.4-.9 1.5-1.8 3.2-1.8 3.4 0 4 2.2 4 5.1V18h-3.3v-16c0-3.1-4.2-2.9-4.2 0V18H10.6V9.9Z" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+      <path d="M12.04 2C6.59 2 2.18 6.39 2.18 11.84c0 1.98.58 3.91 1.67 5.58L2 22l4.74-1.82A9.83 9.83 0 0 0 12.05 22c5.46 0 9.95-4.39 9.95-9.84S17.5 2 12.04 2Zm5.77 13.8-1.41.82c-.6.35-1.39.4-2.05.11a7.14 7.14 0 0 1-3.68-3.16 7.1 7.1 0 0 1-.93-3.23c-.12-.72.1-1.46.65-1.96l.7-.58a1.17 1.17 0 0 1 1.63 0l.6.6c.44.44.47 1.15.08 1.64l-.46.58a.63.63 0 0 0-.08.73c.36.7.9 1.31 1.57 1.79.42.29.93.5 1.04.97.12.5-.15.96-.52 1.3l-.57.52c-.44.4-1.08.45-1.58.15l-.76-.45a.94.94 0 0 0-.98-.07l-1 .52c-.45.26-.94.55-1.42.82.73.82 1.66 1.45 2.7 1.84.81.3 1.68.5 2.57.44.8-.05 1.58-.35 2.26-.82.68-.47 1.11-1.17 1.27-1.95.14-.69-.07-1.34-.57-1.8Z" />
+    </svg>
+  );
+}
+
 export function Footer() {
   const year = new Date().getFullYear();
 
@@ -47,13 +81,21 @@ export function Footer() {
             </p>
 
             <div className="mt-8 flex gap-3">
-              {["in", "fb", "tw", "ig"].map((s) => (
+              {[
+                { key: "ig", href: "https://www.instagram.com/", label: "Instagram", icon: <InstagramIcon /> },
+                { key: "fb", href: "https://www.facebook.com/", label: "Facebook", icon: <FacebookIcon /> },
+                { key: "in", href: "https://www.linkedin.com/", label: "LinkedIn", icon: <LinkedInIcon /> },
+                { key: "wa", href: "https://wa.me/918379007279", label: "WhatsApp", icon: <WhatsAppIcon /> },
+              ].map((social) => (
                 <a
-                  key={s}
-                  href="#"
-                  className="w-9 h-9 rounded-lg bg-white/5 hover:bg-[#1E3A8A] border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-all duration-300 text-xs uppercase font-bold"
+                  key={social.key}
+                  href={social.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={social.label}
+                  className="w-9 h-9 rounded-lg bg-white/5 hover:bg-[#1E3A8A] border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-all duration-300"
                 >
-                  {s}
+                  {social.icon}
                 </a>
               ))}
             </div>
@@ -119,16 +161,16 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" />
                 <span>
-                  <strong className="block text-white/90 mb-0.5">Mumbai HQ</strong>
-                  Level 42, Swapnapurti Tower<br />
-                  Bandra Kurla Complex, 400051
+                  <strong className="block text-white/90 mb-0.5">Ambegoan</strong>
+                 
+                  Pune, Maharashtra 412115
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" />
                 <span>
-                  <strong className="block text-white/90 mb-0.5">Delhi NCR</strong>
-                  Sector 62, Gurugram, 122018
+                  <strong className="block text-white/90 mb-0.5">Manchar</strong>
+                  Manchar, Pune, Maharashtra 410503
                 </span>
               </li>
               <li className="flex items-center gap-3">
