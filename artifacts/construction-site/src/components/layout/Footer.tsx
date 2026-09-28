@@ -1,5 +1,4 @@
-import { motion } from "framer-motion";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Link } from "wouter";
 
 function InstagramIcon() {
@@ -52,7 +51,7 @@ export function Footer() {
               Let's discuss your project — no commitment required.
             </p>
           </div>
-          <Link href="/contact">
+          {/* <Link href="/contact">
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
@@ -60,7 +59,7 @@ export function Footer() {
             >
               Start a Conversation
             </motion.button>
-          </Link>
+          </Link> */}
         </div>
       </div>
 
@@ -155,36 +154,42 @@ export function Footer() {
           {/* Contact */}
           <div className="md:col-span-3">
             <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-6">
-              Contact
+              {/* Contact */}
             </h4>
             <ul className="space-y-4 font-sans text-sm text-white/65">
               <li className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" />
+                {/* <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" /> */}
                 <span>
-                  <strong className="block text-white/90 mb-0.5">Ambegoan</strong>
+                  {/* <strong className="block text-white/90 mb-0.5">Ambegoan</strong> */}
                  
-                  Pune, Maharashtra 412115
+                  {/* Pune, Maharashtra 412115 */}
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" />
+                {/* <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" /> */}
                 <span>
-                  <strong className="block text-white/90 mb-0.5">Manchar</strong>
-                  Manchar, Pune, Maharashtra 410503
+                  {/* <strong className="block text-white/90 mb-0.5">Manchar</strong> */}
+                  {/* Manchar, Pune, Maharashtra 410503 */}
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-[#2563EB] shrink-0" />
-                <a href="tel:+918379007279" className="hover:text-white transition-colors">
-                  +91 83790 07279
-                </a>
+                {/* <Phone className="h-4 w-4 text-[#2563EB] shrink-0" /> */}
+                {/* <a href="tel:+918379007279" className="hover:text-white transition-colors"> */}
+                  {/* +91 83790 07279 */}
+                {/* </a> */}
               </li>
+                                  <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-6">
+              EMAIL US
+            </h4>
               <li className="flex items-center gap-3">
+                
                 <Mail className="h-4 w-4 text-[#2563EB] shrink-0" />
+                
                 <a
                   href="mailto:infoswapnapurtiassociates@gmail.com"
                   className="hover:text-white transition-colors break-all"
                 >
+
                   infoswapnapurtiassociates@gmail.com
                 </a>
               </li>

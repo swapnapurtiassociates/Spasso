@@ -720,7 +720,7 @@ export default function About() {
     <div className="min-h-[calc(100vh-160px)] w-full bg-[#f4f4f0] px-3 py-4 md:px-6 md:py-6">
       <div className="mx-auto w-full max-w-[1600px] overflow-hidden rounded-[24px] border border-black/5 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.12)]">
         <img
-          src="/images/ud.jpg"
+          src="/images/ST.png"
           alt="Swapnapurti Associates luxury villa exterior"
           className="block h-[calc(100vh-200px)] min-h-[520px] w-full object-cover"
         />
