@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 // import { useGetOverviewStats } from "@workspace/api-client-react";
 // import { motion, useInView } from "framer-motion";
 // import {
@@ -704,21 +706,49 @@
 
 
 export default function About() {
+  const [isComingSoonVisible, setIsComingSoonVisible] = useState(true);
+
+  const updateComingSoonVisibility = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const { currentTime, duration } = event.currentTarget;
+    const logoOutroDuration = 6;
+
+    setIsComingSoonVisible(!Number.isFinite(duration) || currentTime < duration - logoOutroDuration);
+  };
+
   return (
-    <div className="min-h-[calc(100vh-160px)] w-full bg-[#f4f4f0] px-3 py-4 md:px-6 md:py-6">
-      <div className="mx-auto w-full max-w-[1600px] overflow-hidden rounded-[14px] border border-black/5 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.12)]">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          //preload="metadata"
-          //poster="/images/ST.png"
-          aria-label="Swapnapurti Associates construction video"
-          className="block h-[calc(100vh-200px)] min-h-[520px] w-full object-cover"
+    <div className="relative h-screen w-full overflow-hidden bg-black">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        onTimeUpdate={updateComingSoonVisibility}
+        aria-label="Swapnapurti Associates construction video"
+        className="absolute inset-0 block h-full w-full object-cover"
+      >
+        <source src="/images/hrr.mp4" type="video/mp4" />
+      </video>
+      <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-4 text-center">
+        <h1
+          aria-hidden={!isComingSoonVisible}
+          className={`py-2 text-7xl leading-[0.95] transition-opacity duration-500 sm:text-8xl md:text-9xl ${
+            isComingSoonVisible ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            fontFamily: "'Antonio', sans-serif",
+            fontWeight: 700,
+            letterSpacing: "0.04em",
+            backgroundImage: "radial-gradient(circle at 0% 0%, #ffffff 0%, #9b9b9b 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            filter: "drop-shadow(0 5px 12px rgba(0, 0, 0, 0.9))",
+          }}
         >
-          <source src="/images/hrr.mp4" type="video/mp4" />
-        </video>
+          COMING
+          <br />
+          SOON
+        </h1>
       </div>
     </div>
   );
