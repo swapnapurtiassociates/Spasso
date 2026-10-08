@@ -1,27 +1,102 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AuthBackground } from "@/components/auth/AuthBackground";
+import { AuthPortalFrame } from "@/components/auth/AuthPortalFrame";
 import { dashboardPathForRole, useAuth, type UserRole } from "@workspace/replit-auth-web";
-import { motion } from "framer-motion";
-import { Briefcase, HardHat, ShieldCheck, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Briefcase, User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 
-type Tab = Exclude<UserRole, "ceo">;
+type Tab = Extract<UserRole, "customer" | "admin">;
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (options: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+          }) => void;
+          renderButton: (element: HTMLElement, options: {
+            theme: "outline";
+            size: "large";
+            shape: "pill";
+            text: "continue_with";
+            width: number;
+            logo_alignment: "left";
+          }) => void;
+        };
+      };
+    };
+  }
+}
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const TABS: { id: Tab; label: string; icon: typeof User }[] = [
   { id: "customer", label: "Customer", icon: User },
-  { id: "engineer", label: "Engineer", icon: HardHat },
   { id: "admin", label: "Admin", icon: Briefcase },
 ];
 
 export default function Login() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, user, loginWithEmail, isLoading } = useAuth();
+  const { isAuthenticated, user, loginWithEmail, loginWithGoogle, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("customer");
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeTab !== "customer" || !GOOGLE_CLIENT_ID || !googleButtonRef.current) return;
+
+    const renderGoogleButton = () => {
+      if (!window.google || !googleButtonRef.current) return;
+
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async ({ credential }) => {
+          setSubmitting(true);
+          setError("");
+          const result = await loginWithGoogle(credential);
+          setSubmitting(false);
+
+          if (!result.success || !result.user) {
+            setError(result.message || "Google sign-in failed");
+            return;
+          }
+
+          setLocation(dashboardPathForRole(result.user.role));
+        },
+      });
+      googleButtonRef.current.replaceChildren();
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: "outline",
+        size: "large",
+        shape: "pill",
+        text: "continue_with",
+        width: Math.min(360, Math.floor(googleButtonRef.current.getBoundingClientRect().width)),
+        logo_alignment: "left",
+      });
+    };
+
+    if (window.google) {
+      renderGoogleButton();
+      return;
+    }
+
+    const existingScript = document.getElementById("google-identity-services");
+    const script = existingScript instanceof HTMLScriptElement ? existingScript : document.createElement("script");
+    if (!existingScript) {
+      script.id = "google-identity-services";
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+    script.addEventListener("load", renderGoogleButton);
+    return () => script.removeEventListener("load", renderGoogleButton);
+  }, [activeTab, loginWithGoogle, setLocation]);
 
   // Show a session-expired banner when redirected from inactivity logout
   const params = new URLSearchParams(window.location.search);
@@ -33,8 +108,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Always go to home page after login
-      setLocation("/");
+      setLocation(dashboardPathForRole(user.role));
     }
   }, [isAuthenticated, user, setLocation]);
 
@@ -53,7 +127,7 @@ export default function Login() {
     }
 
     setSubmitting(true);
-    const result = await loginWithEmail(formData.email, formData.password);
+    const result = await loginWithEmail(formData.email, formData.password, activeTab);
     setSubmitting(false);
 
     if (!result.success) {
@@ -73,127 +147,122 @@ export default function Login() {
 
   if (isLoading || isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f7f2e8]">
-        <div className="h-12 w-12 bg-[#b88f34] rounded-sm animate-pulse flex items-center justify-center">
-          <span className="text-white font-serif font-bold text-2xl">S</span>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="h-12 w-12 animate-pulse rounded-full bg-[#617df4]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <AuthBackground />
-
-      <div className="w-full max-w-md space-y-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-white/90 backdrop-blur-md border border-[#e8dcc6] p-8 md:p-12 rounded-4xl shadow-[0_30px_80px_rgba(0,0,0,0.12)]"
-        >
-          <div className="flex justify-center mb-8">
-            <div className="h-12 w-12 bg-[#b88f34] rounded-sm flex items-center justify-center shadow-lg">
-              <span className="text-white font-serif font-bold text-3xl">S</span>
-            </div>
-          </div>
-
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif font-bold tracking-tight mb-2 text-[#1c1a16]">Welcome Back</h2>
-            <p className="text-[#4e473d]">Sign in to access the Swapnapurti Associates portal.</p>
-          </div>
-
-          {/* Role Tabs */}
-          <div className="grid grid-cols-3 gap-2 mb-8 bg-[#f7f2e8] p-1 rounded-full">
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    setError("");
-                  }}
-                  className={`flex flex-col items-center gap-1 py-2 px-2 rounded-full text-xs font-semibold transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-[#b88f34] text-white"
-                      : "text-[#4e473d] hover:text-[#1c1a16]"
-                  }`}
-                  data-testid={`tab-${tab.id}`}
-                >
-                  <Icon size={16} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {sessionMsg && (
-              <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg text-amber-800 text-sm">
-                {sessionMsg}
-              </div>
-            )}
-            <Input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={handleChange}
-              className="bg-white border border-[#e8dcc6] text-[#1c1a16] placeholder:text-[#4e473d] rounded-lg h-12 focus:border-[#b88f34] focus:ring-[#b88f34]"
-              data-testid="input-email"
-            />
-
-            <Input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="bg-white border border-[#e8dcc6] text-[#1c1a16] placeholder:text-[#4e473d] rounded-lg h-12 focus:border-[#b88f34] focus:ring-[#b88f34]"
-              data-testid="input-password"
-            />
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                {error}
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full h-12 rounded-full text-base uppercase tracking-widest font-bold bg-[#b88f34] hover:bg-[#a6792b] text-white transition-colors"
-              disabled={submitting}
-              data-testid="button-signin"
+    <AuthPortalFrame
+      mode="login"
+      title="Welcome Back!"
+      subtitle="Sign in to continue to your account."
+    >
+      <div className="mb-7 grid grid-cols-2 rounded-full bg-[#f0f3ff] p-1">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                setActiveTab(tab.id);
+                setError("");
+              }}
+              className={`flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-semibold transition-colors ${
+                activeTab === tab.id
+                  ? "bg-[#617df4] text-white shadow-sm"
+                  : "text-[#4c5871] hover:bg-white"
+              }`}
+              data-testid={`tab-${tab.id}`}
             >
-              {submitting ? "Signing In..." : `Sign In as ${TABS.find((t) => t.id === activeTab)?.label}`}
-            </Button>
+              <Icon size={17} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
 
-            <div className="text-center">
-              <a href="/forgot-password" className="text-sm text-[#b88f34] hover:text-[#a6792b] transition-colors">
-                Forgot password?
-              </a>
-            </div>
-          </form>
-
-          <div className="mt-8 text-center border-t border-[#e8dcc6] pt-6">
-            <p className="text-sm text-[#4e473d]">
-              Don't have an account?{" "}
-              <a href="/signup" className="font-semibold text-[#b88f34] hover:text-[#a6792b] transition-colors">
-                Sign Up
-              </a>
-            </p>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {sessionMsg && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+            {sessionMsg}
           </div>
-        </motion.div>
+        )}
+        <label className="block space-y-2 text-sm font-semibold text-[#111827]">
+          Email Address
+          <Input
+            type="email"
+            name="email"
+            autoComplete="email"
+            required
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleChange}
+            className="h-11 rounded-full border-[#c9ccd3] bg-white px-4 text-sm text-[#111827] placeholder:text-[#8790a0] focus-visible:ring-[#617df4]"
+            data-testid="input-email"
+          />
+        </label>
 
-        {/* Subtle, unbranded hint - real entry point is the hidden /portal-x9 route */}
-        <div className="flex justify-center opacity-40 hover:opacity-100 transition-opacity">
-          <a href="/portal-x9" aria-label="Executive access" className="p-2" data-testid="link-hidden-ceo">
-            <ShieldCheck size={14} className="text-[#4e473d]" />
+        <label className="block space-y-2 text-sm font-semibold text-[#111827]">
+          Password
+          <Input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            required
+            placeholder="Enter your password"
+            value={formData.password}
+            onChange={handleChange}
+            className="h-11 rounded-full border-[#c9ccd3] bg-white px-4 text-sm text-[#111827] placeholder:text-[#8790a0] focus-visible:ring-[#617df4]"
+            data-testid="input-password"
+          />
+        </label>
+
+        {error && (
+          <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <a href="/forgot-password" className="text-sm text-[#617df4] hover:underline">
+            Forgot password?
           </a>
         </div>
-      </div>
-    </div>
+
+        <Button
+          type="submit"
+          className="h-11 w-full rounded-full bg-[#617df4] text-base font-semibold text-white hover:bg-[#4f68d9]"
+          disabled={submitting}
+          data-testid="button-signin"
+        >
+          {submitting ? "Signing In..." : `Sign In as ${TABS.find((tab) => tab.id === activeTab)?.label}`}
+        </Button>
+      </form>
+
+      {activeTab === "customer" && (
+        <div className="mt-6">
+          <div className="mb-5 flex items-center gap-3 text-xs text-[#8790a0]">
+            <span className="h-px flex-1 bg-[#e7e9ef]" />
+            OR CONTINUE WITH
+            <span className="h-px flex-1 bg-[#e7e9ef]" />
+          </div>
+          {GOOGLE_CLIENT_ID ? (
+            <div ref={googleButtonRef} className="flex min-h-10 justify-center" />
+          ) : (
+            <p className="text-center text-xs text-[#8790a0]">Google sign-in is not configured yet.</p>
+          )}
+        </div>
+      )}
+
+      <p className="mt-8 border-t border-[#e7e9ef] pt-6 text-center text-sm text-[#647084]">
+        New to Swapnapurti?{" "}
+        <a href="/signup" className="font-semibold text-[#617df4] hover:underline">
+          Create a customer account
+        </a>
+      </p>
+    </AuthPortalFrame>
   );
 }

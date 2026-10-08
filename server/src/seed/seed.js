@@ -4,7 +4,16 @@ import { connectDB } from "../config/db.js";
 import { User } from "../models/User.js";
 import { Project } from "../models/Project.js";
 import { Enquiry } from "../models/Enquiry.js";
+import { validatePassword } from "../utils/validation.js";
 import mongoose from "mongoose";
+
+const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+const adminPassword = process.env.ADMIN_PASSWORD;
+const adminPasswordError = adminPassword ? validatePassword(adminPassword) : "ADMIN_PASSWORD is required";
+
+if (!adminEmail || !adminPassword || adminPasswordError) {
+  throw new Error("Set a valid ADMIN_EMAIL and ADMIN_PASSWORD before running the destructive demo seed.");
+}
 
 async function seed() {
   await connectDB();
@@ -16,6 +25,7 @@ async function seed() {
 
   // Meets new rules: 8+ chars + symbol
   const password = await bcrypt.hash("Password#123", 10);
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
 
   console.log("[seed] creating users...");
 
@@ -27,9 +37,10 @@ async function seed() {
   });
 
   const admin = await User.create({
-    firstName: "Anita", lastName: "Kulkarni",
-    email: "admin@swapnapurti.com", phone: "9000000002",
-    countryCode: "+91", passwordHash: password,
+    firstName: process.env.ADMIN_FIRST_NAME || "Admin",
+    lastName: process.env.ADMIN_LAST_NAME || "Owner",
+    email: adminEmail,
+    countryCode: "+91", passwordHash: adminPasswordHash,
     role: "admin", city: "Pune", state: "Maharashtra", department: "Operations",
   });
 
@@ -245,10 +256,10 @@ async function seed() {
     },
   ]);
 
-  console.log("\n[seed] Done! Login credentials (all use password: Password#123)\n");
+  console.log("\n[seed] Demo data created. Customer and engineer demo accounts use Password#123.\n");
   console.table([
     { role: "CEO (hidden /portal-x9 + access code: SPA-CEO-2026-ACCESS)", email: ceo.email },
-    { role: "Admin", email: admin.email },
+    { role: "Admin (configured)", email: admin.email },
     { role: "Engineer", email: engineer1.email },
     { role: "Engineer", email: engineer2.email },
     { role: "Customer", email: customer.email },

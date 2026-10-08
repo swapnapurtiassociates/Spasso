@@ -37,7 +37,7 @@ if (loaded) {
 }
 
 // Debug: confirm critical vars are loaded
-const vars = ["MONGODB_URI", "JWT_SECRET", "SMTP_HOST", "SMTP_USER", "PORT"];
+const vars = ["MONGODB_URI", "JWT_SECRET", "ADMIN_EMAIL", "ADMIN_PASSWORD", "SMTP_HOST", "SMTP_USER", "PORT"];
 const missing = vars.filter((v) => !process.env[v]);
 if (missing.length > 0) {
   console.warn("[env] ⚠️  Missing env vars:", missing.join(", "));

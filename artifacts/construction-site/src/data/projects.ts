@@ -1,3 +1,5 @@
+import type { Project } from "@workspace/api-client-react";
+
 export type ProjectStatus = "Completed" | "Ongoing" | "In Progress" | "Planned";
 
 export interface ProjectData {
@@ -306,6 +308,34 @@ export const ALL_PROJECTS: ProjectData[] = [
 ];
 
 export const FEATURED_PROJECTS = ALL_PROJECTS.filter((p) => p.featured);
+
+export function projectSlug(title: string) {
+  return title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+export function toPortfolioProject(project: ProjectData): Project {
+  return {
+    id: projectSlug(project.title),
+    title: project.title,
+    category: project.category,
+    shortDescription: project.shortDescription,
+    city: project.city,
+    state: project.state,
+    location: project.location,
+    status: project.status,
+    clientName: project.clientName,
+    projectValue: project.projectValue,
+    areaCovered: project.areaCovered,
+    keyFeatures: project.keyFeatures,
+    completionYear: project.completionYear ?? undefined,
+    tags: project.tags,
+    images: project.images.map((url) => ({ label: "Project image", url })),
+    imageUrl: project.imageUrl,
+    description: project.description,
+    featured: project.featured,
+    progress: project.progress,
+  };
+}
 
 export const STATUS_COLOR: Record<ProjectStatus, string> = {
   Completed: "bg-emerald-600 text-white",

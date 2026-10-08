@@ -20,6 +20,7 @@ export type Project = {
   id: string;
   title: string;
   category: string;
+  shortDescription?: string;
   city: string;
   state?: string;
   location?: string;
@@ -32,9 +33,11 @@ export type Project = {
   completionDate?: string;
   completionYear?: number;
   tags?: string[];
+  images: { label: string; url: string }[];
   imageUrl: string;
   description: string;
   featured?: boolean;
+  progress?: number;
 };
 
 export type Service = {
@@ -75,10 +78,14 @@ export type OverviewStats = {
  * into the shape the marketing-site UI expects.
  */
 function mapProject(p: any): Project {
+  const mapImageUrl = (url: string) =>
+    url.startsWith("/api/") ? new URL(url, API_BASE_URL).toString() : url;
+
   return {
     id: p._id ?? p.id,
     title: p.title,
     category: p.category,
+    shortDescription: p.shortDescription || p.description,
     city: p.city,
     state: p.state,
     location: p.location,
@@ -91,9 +98,18 @@ function mapProject(p: any): Project {
     completionDate: p.completionDate,
     completionYear: p.completionYear,
     tags: p.tags,
-    imageUrl: p.imageUrl,
+    images: Array.isArray(p.images) && p.images.length
+      ? p.images.map((image: { label: string; url: string }) => ({
+          ...image,
+          url: mapImageUrl(image.url),
+        }))
+      : p.imageUrl
+        ? [{ label: "Project cover", url: mapImageUrl(p.imageUrl) }]
+        : [],
+    imageUrl: p.imageUrl ? mapImageUrl(p.imageUrl) : "",
     description: p.description,
     featured: p.featured,
+    progress: p.progress,
   };
 }
 
@@ -169,7 +185,7 @@ export function useGetProject(id: string, options?: { query?: { enabled?: boolea
  */
 export function useGetOverviewStats() {
   const stats: OverviewStats = {
-    completedProjects: "120+",
+    completedProjects: "150+",
     engineersAvailable: "350+",
     citiesCovered: "24",
     yearsExperience: "15+",

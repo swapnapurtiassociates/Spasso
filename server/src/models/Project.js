@@ -22,6 +22,17 @@ const projectSchema = new Schema(
     progress: { type: Number, default: 0, min: 0, max: 100 },
     tags: { type: [String], default: [] },
     imageUrl: { type: String, default: "" },
+    images: {
+      type: [
+        {
+          label: { type: String, trim: true, default: "Project view" },
+          url: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
+    published: { type: Boolean, default: true, index: true },
+    shortDescription: { type: String, default: "", trim: true },
 
     // Marketing-site fields
     areaCovered: { type: String, default: "" },

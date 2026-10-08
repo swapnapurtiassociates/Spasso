@@ -1,5 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
+import { OAuth2Client } from "google-auth-library";
 import { User } from "../models/User.js";
 import {
   signToken,
@@ -14,6 +16,7 @@ const router = Router();
 
 const CEO_ACCESS_CODE = process.env.CEO_ACCESS_CODE || "change_this_secret_ceo_code";
 const STAFF_ACCESS_CODE = process.env.STAFF_ACCESS_CODE || "change_this_staff_code";
+const googleOAuthClient = new OAuth2Client();
 
 async function startSession(user, res) {
   const sessionId = generateSessionId();
@@ -48,11 +51,11 @@ router.post("/signup", async (req, res) => {
     const ccError = validateCountryCode(countryCode);
     if (ccError) return res.status(400).json({ message: ccError });
 
-    const allowedRoles = ["customer", "engineer", "admin"];
+    const allowedRoles = ["customer", "engineer"];
     if (!allowedRoles.includes(role))
-      return res.status(403).json({ message: "Invalid role for signup" });
+      return res.status(403).json({ message: "Only customer accounts can be created through signup" });
 
-    if ((role === "engineer" || role === "admin") && staffAccessCode !== STAFF_ACCESS_CODE)
+    if (role === "engineer" && staffAccessCode !== STAFF_ACCESS_CODE)
       return res.status(403).json({ message: "Invalid staff access code for this role" });
 
     if (await User.findOne({ email: email.toLowerCase() }))
@@ -85,11 +88,12 @@ router.post("/signup", async (req, res) => {
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role: requestedRole } = req.body;
     if (!email || !password)
       return res.status(400).json({ message: "Email and password are required" });
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user || !user.isActive)
       return res.status(401).json({ message: "Invalid email or password" });
 
@@ -100,11 +104,75 @@ router.post("/login", async (req, res) => {
     if (!valid)
       return res.status(401).json({ message: "Invalid email or password" });
 
+    if (requestedRole && user.role !== requestedRole)
+      return res.status(403).json({ message: "Use the sign-in option for your account type" });
+
+    if (user.role === "admin" &&
+        (!process.env.ADMIN_EMAIL || normalizedEmail !== process.env.ADMIN_EMAIL.toLowerCase().trim()))
+      return res.status(401).json({ message: "Invalid email or password" });
+
     await startSession(user, res);
     res.json({ user: user.toJSON() });
   } catch (err) {
     console.error("[auth/login]", err);
     res.status(500).json({ message: "Server error during login" });
+  }
+});
+
+// POST /api/auth/google — customer sign-in / account creation with Google.
+router.post("/google", async (req, res) => {
+  try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const { credential } = req.body;
+
+    if (!clientId)
+      return res.status(503).json({ message: "Google sign-in is not configured" });
+    if (typeof credential !== "string" || !credential)
+      return res.status(400).json({ message: "Google credential is required" });
+
+    let payload;
+    try {
+      const ticket = await googleOAuthClient.verifyIdToken({
+        idToken: credential,
+        audience: clientId,
+      });
+      payload = ticket.getPayload();
+    } catch {
+      return res.status(401).json({ message: "Invalid Google sign-in credential" });
+    }
+
+    if (!payload?.email || payload.email_verified !== true)
+      return res.status(401).json({ message: "A verified Google email is required" });
+
+    const email = payload.email.toLowerCase().trim();
+    let user = await User.findOne({ email });
+
+    if (user && user.role !== "customer")
+      return res.status(403).json({ message: "Google sign-in is available for customer accounts only" });
+    if (user && !user.isActive)
+      return res.status(401).json({ message: "This account is disabled" });
+
+    if (!user) {
+      const nameParts = (payload.name || email.split("@")[0]).trim().split(/\s+/);
+      const firstName = payload.given_name || nameParts[0] || "Customer";
+      const lastName = payload.family_name || nameParts.slice(1).join(" ") || "Customer";
+      user = await User.create({
+        firstName,
+        lastName,
+        email,
+        passwordHash: await bcrypt.hash(randomBytes(32).toString("hex"), 10),
+        role: "customer",
+        profileImageUrl: payload.picture || "",
+      });
+    }
+
+    await startSession(user, res);
+    res.json({ user: user.toJSON() });
+  } catch (err) {
+    if (err?.code === 11000)
+      return res.status(409).json({ message: "An account with this Google email already exists. Please try again." });
+    console.error("[auth/google]", err);
+    res.status(500).json({ message: "Server error during Google sign-in" });
   }
 });
 

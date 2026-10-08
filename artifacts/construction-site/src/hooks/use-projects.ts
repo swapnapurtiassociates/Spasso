@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "@workspace/api-client-react/useSocket";
 import { API_BASE_URL, type AuthUser } from "@workspace/replit-auth-web";
 
@@ -6,6 +7,7 @@ export type DashboardProject = {
   _id: string;
   title: string;
   category: string;
+  shortDescription?: string;
   description: string;
   city: string;
   state?: string;
@@ -18,11 +20,19 @@ export type DashboardProject = {
   progress: number;
   tags?: string[];
   imageUrl?: string;
+  images?: { label: string; url: string }[];
+  published?: boolean;
+  areaCovered?: string;
+  keyFeatures?: string[];
+  featured?: boolean;
+  startDate?: string;
+  completionDate?: string;
   assignedEngineers?: { _id: string; firstName: string; lastName: string; specialization?: string }[];
   createdAt: string;
 };
 
 export function useProjects(user: AuthUser | null) {
+  const queryClient = useQueryClient();
   const [projects, setProjects] = useState<DashboardProject[]>([]);
   const [loading, setLoading] = useState(true);
   const socket = useSocket(!!user);
@@ -70,9 +80,24 @@ export function useProjects(user: AuthUser | null) {
       credentials: "include",
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error("Failed to create project");
     const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to create project");
     return data.project as DashboardProject;
+  };
+
+  const uploadProjectImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const res = await fetch(`${API_BASE_URL}/api/projects/images`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data?.url) {
+      throw new Error(data?.message || "Failed to upload project image");
+    }
+    return data.url as string;
   };
 
   const updateProject = async (id: string, payload: Partial<DashboardProject>) => {
@@ -82,10 +107,35 @@ export function useProjects(user: AuthUser | null) {
       credentials: "include",
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error("Failed to update project");
     const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to update project");
+    await queryClient.invalidateQueries({ queryKey: ["projects"] });
+    await queryClient.invalidateQueries({ queryKey: ["featured-projects"] });
+    await queryClient.invalidateQueries({ queryKey: ["project"] });
     return data.project as DashboardProject;
   };
 
-  return { projects, loading, createProject, updateProject, refetch: fetchProjects };
+  const deleteProject = async (id: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to delete project");
+    setProjects((prev) => prev.filter((project) => project._id !== id));
+    await queryClient.invalidateQueries({ queryKey: ["projects"] });
+    await queryClient.invalidateQueries({ queryKey: ["featured-projects"] });
+    return data as { message: string; imageCleanupWarning?: string };
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+    const remove = (id: string) => setProjects((prev) => prev.filter((project) => project._id !== id));
+    socket.on("project:deleted", remove);
+    return () => {
+      socket.off("project:deleted", remove);
+    };
+  }, [socket]);
+
+  return { projects, loading, createProject, updateProject, deleteProject, uploadProjectImage, refetch: fetchProjects };
 }

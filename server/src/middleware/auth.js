@@ -33,8 +33,15 @@ export async function requireAuth(req, res, next) {
       return res.status(401).json({ message: "Account not found or disabled" });
     }
 
+    if (user.role === "admin" &&
+        (!process.env.ADMIN_EMAIL ||
+          user.email !== process.env.ADMIN_EMAIL.toLowerCase().trim())) {
+      clearAuthCookie(res);
+      return res.status(403).json({ message: "Admin access is not configured for this account" });
+    }
+
     // Single active session check
-    if (payload.sid && user.activeSessionId && payload.sid !== user.activeSessionId) {
+    if (payload.sid && payload.sid !== user.activeSessionId) {
       clearAuthCookie(res);
       return res.status(401).json({ message: "Session ended: account signed in elsewhere" });
     }

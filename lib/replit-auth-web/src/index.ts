@@ -30,6 +30,7 @@ export type SignupData = {
   lastName: string;
   email: string;
   phone?: string;
+  countryCode?: string;
   password: string;
   role?: "customer" | "engineer" | "admin";
   staffAccessCode?: string;
@@ -48,7 +49,8 @@ export type UseAuthResult = {
   login: () => void;
   logout: () => void;
   refresh: () => Promise<void>;
-  loginWithEmail: (email: string, password: string) => Promise<LoginResult>;
+  loginWithEmail: (email: string, password: string, role?: "customer" | "admin") => Promise<LoginResult>;
+  loginWithGoogle: (credential: string) => Promise<LoginResult>;
   ceoLogin: (email: string, password: string, accessCode: string) => Promise<LoginResult>;
   signup: (data: SignupData) => Promise<LoginResult>;
 };
@@ -105,14 +107,18 @@ export function useAuth(): UseAuthResult {
     window.location.href = "/login";
   };
 
-  const loginWithEmail = async (email: string, password: string): Promise<LoginResult> => {
+  const loginWithEmail = async (
+    email: string,
+    password: string,
+    role?: "customer" | "admin"
+  ): Promise<LoginResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role }),
       });
       const data = await parseJsonSafe(response);
       if (response.ok && data?.user) {
@@ -127,6 +133,29 @@ export function useAuth(): UseAuthResult {
       setIsLoading(false);
     }
   };
+
+  const loginWithGoogle = useCallback(async (credential: string): Promise<LoginResult> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ credential }),
+      });
+      const data = await parseJsonSafe(response);
+      if (response.ok && data?.user) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+        return { success: true, user: data.user };
+      }
+      return { success: false, message: data?.message || "Google sign-in failed" };
+    } catch {
+      return { success: false, message: "Network error. Please try again." };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const ceoLogin = async (
     email: string,
@@ -199,6 +228,7 @@ export function useAuth(): UseAuthResult {
     logout,
     refresh,
     loginWithEmail,
+    loginWithGoogle,
     ceoLogin,
     signup,
   };

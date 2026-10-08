@@ -4,32 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-type AuthUser = {
-  firstName?: string;
-  profileImageUrl?: string;
-  role?: string;
-};
-
-type AuthState = {
-  user?: AuthUser;
-  isAuthenticated: boolean;
-  login: () => void;
-  logout: () => void;
-};
-
-function dashboardPathForRole(role?: string) {
-  if (!role || role === "customer") return "/dashboard";
-  return `/${role}/dashboard`;
-}
-
-function useAuth(): AuthState {
-  return {
-    user: undefined,
-    isAuthenticated: false,
-    login: () => undefined,
-    logout: () => undefined,
-  };
-}
+import { dashboardPathForRole, useAuth } from "@workspace/replit-auth-web";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -53,53 +28,66 @@ export function Navbar() {
   const isHome = location === "/";
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled || !isHome || isMobileMenuOpen
-          ? "glass-nav shadow-sm"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="flex h-24 items-center justify-between">
-          {/* Logo */}
+    <nav className="fixed top-0 left-0 right-0 z-50">
+      <div className="container mx-auto px-4 pt-3 md:px-8">
+        <div className="relative flex h-14 items-center justify-between">
+          {/* Logo stays separate from the glass navigation panel */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex items-center justify-center">
-              <img
-                src="/images/logo.png"
-                alt="Swapnapurti Associates Logo"
-                className="h-14 w-auto max-w-[200px] md:h-16 md:max-w-[220px] object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
+            <img
+              src="/images/logo.png"
+              alt="Swapnapurti Associates Logo"
+              className="h-10 w-auto max-w-[160px] object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+            />
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`relative text-sm font-medium tracking-wide uppercase transition-colors duration-300 group ${
-                  location.startsWith(link.href)
-                    ? scrolled || !isHome
-                      ? "text-[#1E3A8A]"
-                      : "text-white"
-                    : scrolled || !isHome
-                    ? "text-[#374151] hover:text-[#1E3A8A]"
-                    : "text-white/80 hover:text-white"
-                }`}
-              >
-                {link.label}
-                <span
-                  className={`absolute -bottom-1 left-0 h-0.5 bg-[#2563EB] transition-all duration-300 ${
-                    location.startsWith(link.href) ? "w-full" : "w-0 group-hover:w-full"
+          {/* Desktop navigation panel */}
+          <div
+            className={`hidden md:flex absolute left-1/2 -translate-x-1/2 items-center rounded-xl border px-5 py-3 shadow-xl backdrop-blur-xl transition-all duration-300 ${
+              scrolled || !isHome || isMobileMenuOpen
+                ? "glass-nav"
+                : "glass-nav-dark"
+            }`}
+          >
+            <div className="flex items-center gap-4 lg:gap-6">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative text-xs font-medium tracking-wide uppercase transition-colors duration-300 group lg:text-sm ${
+                    location.startsWith(link.href)
+                      ? scrolled || !isHome
+                        ? "text-[#1E3A8A]"
+                        : "text-white"
+                      : scrolled || !isHome
+                      ? "text-[#374151] hover:text-[#1E3A8A]"
+                      : "text-white/80 hover:text-white"
                   }`}
-                />
-              </Link>
-            ))}
+                >
+                  {link.label}
+                  <span
+                    className={`absolute -bottom-1 left-0 h-0.5 bg-[#2563EB] transition-all duration-300 ${
+                      location.startsWith(link.href) ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
+                </Link>
+              ))}
+            </div>
           </div>
 
-          {/* Desktop CTA */}
+          {/* Mobile menu button */}
+          <button
+            className={`md:hidden rounded-xl border p-3 shadow-lg backdrop-blur-xl ${
+              scrolled || !isHome || isMobileMenuOpen
+                ? "glass-nav text-[#0F172A]"
+                : "glass-nav-dark text-white"
+            }`}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+
+          {/* Desktop actions stay outside the glass navigation panel */}
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
@@ -139,6 +127,20 @@ export function Navbar() {
                 </Button>
               </div>
             ) : (
+              <div className="flex items-center gap-3">
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`rounded-lg text-xs uppercase tracking-wider ${
+                    scrolled || !isHome
+                      ? "border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white"
+                      : "border-white/70 text-white hover:bg-white hover:text-[#1E3A8A]"
+                  }`}
+                >
+                  Sign In
+                </Button>
+              </Link>
               <Link href="/contact">
                 <Button
                   size="sm"
@@ -147,21 +149,9 @@ export function Navbar() {
                   Get a Quote
                 </Button>
               </Link>
+              </div>
             )}
           </div>
-
-          {/* Mobile menu button */}
-          <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${
-              scrolled || !isHome || isMobileMenuOpen
-                ? "text-[#0F172A]"
-                : "text-white"
-            }`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
         </div>
       </div>
 
@@ -196,7 +186,7 @@ export function Navbar() {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10 rounded-lg">
                         <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "User"} />
-                        <AvatarFallback className="rounded-lg bg-[#1E3A8A] text-white">
+                        <AvatarFallback className="rounded-lg bg-[#3c66da] text-white">
                           {user?.firstName?.charAt(0) || "U"}
                         </AvatarFallback>
                       </Avatar>
@@ -222,11 +212,18 @@ export function Navbar() {
                     </Button>
                   </>
                 ) : (
+                  <div className="flex flex-col gap-3">
+                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full rounded-lg uppercase tracking-wider">
+                      Sign In
+                    </Button>
+                  </Link>
                   <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button className="w-full bg-[#1E3A8A] hover:bg-[#2563EB] text-white rounded-lg uppercase tracking-wider">
                       Get a Quote
                     </Button>
                   </Link>
+                  </div>
                 )}
               </div>
             </div>

@@ -44,21 +44,18 @@ export function Footer() {
       <div className="border-b border-white/10">
         <div className="container mx-auto px-4 md:px-8 py-14 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <h3 className="font-serif text-3xl md:text-4xl font-semibold mb-2">
+            {/* <h3 className="font-serif text-3xl md:text-4xl font-semibold mb-2">
               Ready to build something remarkable?
-            </h3>
-            <p className="text-white/60 font-sans text-sm">
+            </h3> */}
+            {/* <p className="text-white/60 font-sans text-sm">
               Let's discuss your project — no commitment required.
-            </p>
+            </p> */}
           </div>
-          {/* <Link href="/contact">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className="shrink-0 bg-[#2563EB] hover:bg-[#3b82f6] text-white font-sans font-medium text-sm uppercase tracking-widest px-8 py-4 rounded-xl shadow-lg shadow-[#2563EB]/30 transition-colors duration-300"
-            >
-              Start a Conversation
-            </motion.button>
+          {/* <Link
+            href="/contact"
+            className="shrink-0 rounded-xl bg-[#2563EB] px-8 py-4 font-sans text-sm font-medium uppercase tracking-widest text-white shadow-lg shadow-[#2563EB]/30 transition-colors duration-300 hover:bg-[#3b82f6]"
+          >
+            Start a Conversation
           </Link> */}
         </div>
       </div>
@@ -154,42 +151,15 @@ export function Footer() {
           {/* Contact */}
           <div className="md:col-span-3">
             <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-6">
-              {/* Contact */}
+              Contact
             </h4>
             <ul className="space-y-4 font-sans text-sm text-white/65">
-              <li className="flex items-start gap-3">
-                {/* <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" /> */}
-                <span>
-                  {/* <strong className="block text-white/90 mb-0.5">Ambegoan</strong> */}
-                 
-                  {/* Pune, Maharashtra 412115 */}
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                {/* <MapPin className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" /> */}
-                <span>
-                  {/* <strong className="block text-white/90 mb-0.5">Manchar</strong> */}
-                  {/* Manchar, Pune, Maharashtra 410503 */}
-                </span>
-              </li>
               <li className="flex items-center gap-3">
-                {/* <Phone className="h-4 w-4 text-[#2563EB] shrink-0" /> */}
-                {/* <a href="tel:+918379007279" className="hover:text-white transition-colors"> */}
-                  {/* +91 83790 07279 */}
-                {/* </a> */}
-              </li>
-                                  <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-6">
-              EMAIL US
-            </h4>
-              <li className="flex items-center gap-3">
-                
                 <Mail className="h-4 w-4 text-[#2563EB] shrink-0" />
-                
                 <a
                   href="mailto:infoswapnapurtiassociates@gmail.com"
                   className="hover:text-white transition-colors break-all"
                 >
-
                   infoswapnapurtiassociates@gmail.com
                 </a>
               </li>

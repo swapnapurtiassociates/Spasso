@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { dashboardPathForRole, useAuth, type AuthUser } from "@workspace/replit-auth-web";
 import { motion } from "framer-motion";
-import { Bell, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { type ReactNode } from "react";
 import { useLocation } from "wouter";
 
@@ -10,12 +10,19 @@ type DashboardShellProps = {
   subtitle?: string;
   user: AuthUser;
   notificationCount?: number;
+  fullWidth?: boolean;
   children: ReactNode;
 };
 
-export function DashboardShell({ title, subtitle, user, notificationCount = 0, children }: DashboardShellProps) {
+export function DashboardShell({
+  title,
+  subtitle,
+  user,
+  notificationCount = 0,
+  fullWidth = false,
+  children,
+}: DashboardShellProps) {
   const { logout } = useAuth();
-  const [, setLocation] = useLocation();
 
   return (
     <div className="min-h-screen bg-[#f7f2e8]">
@@ -23,30 +30,14 @@ export function DashboardShell({ title, subtitle, user, notificationCount = 0, c
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex h-20 items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 bg-[#b88f34] rounded-sm flex items-center justify-center">
-                <span className="text-white font-serif font-bold text-lg">S</span>
-              </div>
-              <div>
-                <p className="font-serif font-bold text-lg text-[#1c1a16] leading-tight">{title}</p>
-                {subtitle && <p className="text-xs uppercase tracking-widest text-[#b88f34]">{subtitle}</p>}
-              </div>
+              <img
+                src="/images/logo.png"
+                alt="Swapnapurti Associates"
+                className="h-11 w-auto max-w-[180px] object-contain"
+              />
             </div>
 
             <div className="flex items-center gap-4">
-              <button
-                className="relative p-2 rounded-full hover:bg-[#f0e9da] transition-colors"
-                onClick={() => setLocation("/dashboard/notifications")}
-                aria-label="Notifications"
-                data-testid="button-notifications"
-              >
-                <Bell size={20} className="text-[#4e473d]" />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[#b88f34] text-[10px] font-bold text-white flex items-center justify-center">
-                    {notificationCount > 9 ? "9+" : notificationCount}
-                  </span>
-                )}
-              </button>
-
               <div className="hidden sm:flex flex-col items-end">
                 <span className="text-sm font-semibold text-[#1c1a16]">
                   {user.firstName} {user.lastName}
@@ -55,14 +46,14 @@ export function DashboardShell({ title, subtitle, user, notificationCount = 0, c
               </div>
 
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={logout}
-                className="rounded-full uppercase font-medium tracking-wider text-xs gap-2"
+                className="shrink-0 rounded-full border-[#1c1a16] bg-[#1c1a16] px-4 text-xs font-semibold uppercase tracking-wider text-white hover:bg-[#3a3328] hover:text-white"
                 data-testid="button-logout"
               >
                 <LogOut size={14} />
-                Sign Out
+                Log Out
               </Button>
             </div>
           </div>
@@ -73,7 +64,7 @@ export function DashboardShell({ title, subtitle, user, notificationCount = 0, c
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="container mx-auto px-4 md:px-6 py-10"
+        className={fullWidth ? "w-full px-0 py-0" : "container mx-auto px-4 md:px-6 py-10"}
       >
         {children}
       </motion.main>
