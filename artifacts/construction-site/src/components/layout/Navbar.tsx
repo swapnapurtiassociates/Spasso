@@ -34,9 +34,9 @@ export function Navbar() {
           {/* Logo stays separate from the glass navigation panel */}
           <Link href="/" className="flex items-center gap-3 group">
             <img
-              src="/images/logo.png"
+              src="/images/logo-light.png"
               alt="Swapnapurti Associates Logo"
-              className="h-10 w-auto max-w-[160px] object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+              className="h-10 w-auto max-w-[180px] object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 

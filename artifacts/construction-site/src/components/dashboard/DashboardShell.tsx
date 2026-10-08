@@ -31,9 +31,9 @@ export function DashboardShell({
           <div className="flex h-20 items-center justify-between">
             <div className="flex items-center gap-3">
               <img
-                src="/images/logo.png"
+                src="/images/logo-light.png"
                 alt="Swapnapurti Associates"
-                className="h-11 w-auto max-w-[180px] object-contain"
+                className="h-11 w-auto max-w-[190px] object-contain"
               />
             </div>
 

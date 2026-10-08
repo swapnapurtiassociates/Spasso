@@ -67,9 +67,9 @@ export function Footer() {
           <div className="md:col-span-4">
             <Link href="/" className="inline-flex items-center gap-3 mb-6 group">
               <img
-                src="/images/logo.png"
-               
-                className="h-14 w-auto max-w-[190px] object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300 brightness-0 invert"
+                src="/images/logo-light.png"
+                alt="Swapnapurti Associates"
+                className="h-14 w-auto max-w-[190px] object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100"
               />
             </Link>
             <p className="text-white/55 font-sans text-sm leading-relaxed max-w-xs">
