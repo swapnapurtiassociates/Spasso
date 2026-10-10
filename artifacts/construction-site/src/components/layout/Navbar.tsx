@@ -1,19 +1,51 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { dashboardPathForRole, useAuth } from "@workspace/replit-auth-web";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { dashboardPathForRole, useAuth } from "@workspace/replit-auth-web";
 
 export function Navbar() {
   const [location] = useLocation();
   const { user, isAuthenticated, login, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollDirection = useRef(0);
+  const scrollDistance = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    lastScrollY.current = window.scrollY;
+    setScrolled(window.scrollY > 20);
+
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY.current;
+
+      setScrolled(currentScrollY > 20);
+
+      if (currentScrollY <= 80) {
+        setIsNavbarVisible(true);
+        scrollDistance.current = 0;
+        scrollDirection.current = 0;
+      } else if (delta !== 0) {
+        const direction = Math.sign(delta);
+        if (direction !== scrollDirection.current) {
+          scrollDirection.current = direction;
+          scrollDistance.current = 0;
+        }
+
+        scrollDistance.current += Math.abs(delta);
+        if (scrollDistance.current > 8) {
+          setIsNavbarVisible(direction < 0);
+        }
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -28,15 +60,19 @@ export function Navbar() {
   const isHome = location === "/";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+        isNavbarVisible ? "translate-y-0" : "pointer-events-none -translate-y-full"
+      }`}
+    >
       <div className="container mx-auto px-4 pt-3 md:px-8">
         <div className="relative flex h-14 items-center justify-between">
           {/* Logo stays separate from the glass navigation panel */}
           <Link href="/" className="flex items-center gap-3 group">
             <img
-              src="/images/logo-light.png"
+              src="/images/logo.png"
               alt="Swapnapurti Associates Logo"
-              className="h-10 w-auto max-w-[180px] object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+              className="h-11 w-auto max-w-[200px] rounded-xl border border-slate-200/70 bg-white px-3 py-1 object-contain shadow-lg shadow-slate-950/20 transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 

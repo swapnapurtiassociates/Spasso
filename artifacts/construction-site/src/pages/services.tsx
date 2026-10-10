@@ -58,7 +58,7 @@ const services = [
     subtitle: "Foundations for the future",
     description:
       "Designing and building durable roads, bridges, industrial facilities, and urban infrastructure with the highest standards of structural integrity and safety.",
-    image: `${baseUrl}images/1.jpeg`,
+    image: `${baseUrl}images/services/infrastructure.jpg`,
     benefits: [
       "ISO 9001:2015 certified processes",
       "International structural standards",
@@ -73,7 +73,7 @@ const services = [
     subtitle: "Where craft meets luxury",
     description:
       "Transforming interior environments with luxurious finishes, functional layouts, and bespoke detailing that reflect premium living and commercial excellence.",
-    image: `${baseUrl}images/inte.jpg`,
+    image: `${baseUrl}images/services/interior.jpg`,
     benefits: [
       "Imported materials and fixtures",
       "3D visualization before build",
@@ -88,7 +88,7 @@ const services = [
     subtitle: "First impressions that last",
     description:
       "Creating striking façades, landscaped exteriors, and architectural detailing that elevate the character and curb appeal of every project.",
-    image: `${baseUrl}images/exte.jpg`,
+    image: `${baseUrl}images/services/exterior.jpg`,
     benefits: [
       "Custom façade engineering",
       "Landscape architecture",
@@ -103,7 +103,7 @@ const services = [
     subtitle: "On time, on budget — always",
     description:
       "Coordinating every phase with clear communication, strict scheduling, and cost control so your project completes on time and within budget.",
-    image: `${baseUrl}images/PM.png`,
+    image: `${baseUrl}images/services/project-management.jpg`,
     benefits: [
       "Real-time project dashboards",
       "Dedicated project manager",
@@ -118,7 +118,7 @@ const services = [
     subtitle: "Building for tomorrow",
     description:
       "Delivering energy-efficient buildings and green materials that reduce operating costs while enhancing long-term value and environmental responsibility.",
-    image: `${baseUrl}images/SD.png`,
+    image: `${baseUrl}images/services/sustainable-design.jpg`,
     benefits: [
       "LEED certification support",
       "Net-zero energy planning",
@@ -133,7 +133,7 @@ const services = [
     subtitle: "New life for existing spaces",
     description:
       "Reimagining existing spaces with premium finishes, structural upgrades, and thoughtful detailing — bringing heritage and modern elegance together.",
-    image: `${baseUrl}images/rr.jpg`,
+    image: `${baseUrl}images/services/renovation.jpg`,
     benefits: [
       "Structural assessment first",
       "Heritage preservation expertise",
@@ -178,7 +178,7 @@ const process = [
 const processArrows = [
   { path: "M 276 150 C 292 112 308 112 324 150" },
   { path: "M 576 150 C 592 188 608 188 624 150" },
-  { path: "M 876 150 C 892 112 908 112 924 140" },
+  { path: "M 876 150 C 892 112 908 112 924 150" },
 ];
 
 export default function Services() {
@@ -307,7 +307,7 @@ export default function Services() {
                   }`}
                   style={{ zIndex: layer + 1 }}
                 >
-                  <img src={services[index].image} alt={services[index].title} className="h-full w-full object-cover" loading="lazy" />
+                  <img src={services[index].image} alt={services[index].title} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                   <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 to-transparent px-4 pb-4 pt-10 text-left text-xs font-semibold uppercase tracking-wider text-white">
                     {services[index].title}
                   </span>
@@ -323,7 +323,7 @@ export default function Services() {
                   transition={{ duration: 0.4 }}
                   className="absolute left-0 top-1/2 z-10 h-[82%] w-[76%] -translate-y-1/2 overflow-hidden rounded-2xl bg-slate-100 shadow-[0_28px_70px_rgba(15,23,42,0.18)]"
                 >
-                  <img src={activeService.image} alt={activeService.title} className="h-full w-full object-cover" fetchPriority="high" />
+                  <img src={activeService.image} alt={activeService.title} className="h-full w-full object-cover" fetchPriority="high" decoding="async" />
                   <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#2563EB] text-white shadow-lg">
                     <activeService.icon className="h-5 w-5" />
                   </div>
@@ -347,7 +347,7 @@ export default function Services() {
                   index === activeServiceIndex ? "ring-2 ring-[#2563EB] ring-offset-2" : "opacity-65 hover:opacity-100"
                 }`}
               >
-                <img src={service.image} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                <img src={service.image} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async" />
                 <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-slate-950/80 to-transparent px-2 pb-2 pt-5 text-left text-[10px] font-semibold text-white sm:text-xs">
                   {service.title}
                 </span>
