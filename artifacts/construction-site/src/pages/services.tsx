@@ -178,7 +178,7 @@ const process = [
 const processArrows = [
   { path: "M 276 150 C 292 112 308 112 324 150" },
   { path: "M 576 150 C 592 188 608 188 624 150" },
-  { path: "M 876 150 C 892 112 908 112 924 150" },
+  { path: "M 876 150 C 892 112 908 112 924 130" },
 ];
 
 export default function Services() {
